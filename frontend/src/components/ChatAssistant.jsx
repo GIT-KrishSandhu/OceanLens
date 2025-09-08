@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { MessageCircle, Send, X, Bot, User, BarChart3, Download, RefreshCw, Zap, Lock } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
@@ -75,10 +73,10 @@ export function ChatAssistant({ isOpen, onToggle }) {
       top: '80px',
       height: 'calc(100vh - 80px)',
       width: '400px',
-      background: 'rgba(128, 204, 255, 0.95)',
+      background: 'rgba(30, 58, 138, 0.95)',
       backdropFilter: 'blur(20px)',
-      borderLeft: '1px solid rgba(102, 194, 255, 0.3)',
-      boxShadow: '-20px 0 40px rgba(128, 204, 255, 0.4)',
+      borderLeft: '2px solid rgba(59, 130, 246, 0.5)',
+      boxShadow: '-20px 0 40px rgba(30, 58, 138, 0.6)',
       zIndex: 40,
       display: 'flex',
       flexDirection: 'column'
@@ -87,22 +85,22 @@ export function ChatAssistant({ isOpen, onToggle }) {
       <div style={{ 
         padding: '20px', 
         borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)'
+        background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(15, 118, 110, 0.8) 100%)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ 
               padding: '10px', 
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(6, 182, 212, 0.9) 100%)',
               borderRadius: '12px',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)'
+              border: '2px solid rgba(59, 130, 246, 0.8)',
+              boxShadow: '0 8px 32px rgba(59, 130, 246, 0.6)'
             }}>
-              <Bot style={{ width: '20px', height: '20px', color: '#60a5fa' }} />
+              <Bot style={{ width: '20px', height: '20px', color: '#ffffff', filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' }} />
             </div>
             <div>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#e2e8f0', margin: 0 }}>FloatChat Assistant</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0 0' }}>AI-powered ocean analytics</p>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#ffffff', margin: 0 }}>FloatChat Assistant</h3>
+              <p style={{ fontSize: '12px', color: '#e2e8f0', margin: '2px 0 0 0' }}>AI-powered ocean analytics</p>
             </div>
           </div>
           <button

@@ -1,26 +1,12 @@
-"use client"
-
 import { useState } from "react"
-import { BarChart3, ToggleLeft, ToggleRight, MapPin, Activity, Globe, Layers, Maximize2, Waves, Zap } from "lucide-react"
+import { MapPin, Globe, Layers, Maximize2 } from "lucide-react"
 
-export function MapView() {
-  const [chatbotEnabled, setChatbotEnabled] = useState(false)
+export function MapView({ onFullscreenToggle, isFullscreen = false }) {
   const [viewMode, setViewMode] = useState("trajectories")
-  const [isFullscreen, setIsFullscreen] = useState(false)
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
-        setIsFullscreen(true)
-      }).catch(err => {
-        console.log('Error attempting to enable fullscreen:', err)
-      })
-    } else {
-      document.exitFullscreen().then(() => {
-        setIsFullscreen(false)
-      }).catch(err => {
-        console.log('Error attempting to exit fullscreen:', err)
-      })
+  const handleFullscreenToggle = () => {
+    if (onFullscreenToggle) {
+      onFullscreenToggle()
     }
   }
 
@@ -28,25 +14,21 @@ export function MapView() {
     <div style={{ padding: '24px', height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ 
+          <div className="gradient-level-4" style={{ 
             padding: '12px', 
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
-            borderRadius: '16px',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)'
+            borderRadius: '16px'
           }}>
-            <Globe style={{ width: '24px', height: '24px', color: '#60a5fa' }} />
+            <Globe style={{ width: '24px', height: '24px', color: 'var(--blue-15)' }} />
           </div>
           <div>
             <h2 style={{ 
               fontSize: '24px', 
               fontWeight: '700', 
-              background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              margin: 0
+              color: 'var(--blue-15)',
+              margin: 0,
+              textShadow: '0 0 20px rgba(102, 163, 255, 0.5)'
             }}>Ocean Trajectories</h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', margin: '4px 0 0 0' }}>Real-time Argo float monitoring & data collection</p>
+            <p style={{ fontSize: '14px', color: 'var(--blue-20)', margin: '4px 0 0 0' }}>Real-time Argo float monitoring & data collection</p>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -56,30 +38,29 @@ export function MapView() {
               setViewMode(newMode);
               console.log(`Switched to ${newMode} view`);
             }}
+            className={viewMode === "heatmap" ? "professional-button gradient-level-5" : "glass-effect"}
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '8px', 
               padding: '12px 20px', 
-              background: viewMode === "heatmap" ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.8)',
-              border: viewMode === "heatmap" ? '2px solid #3b82f6' : '2px solid rgba(59, 130, 246, 0.3)',
               borderRadius: '12px', 
-              color: viewMode === "heatmap" ? '#60a5fa' : '#e2e8f0',
+              color: viewMode === "heatmap" ? 'var(--blue-15)' : 'var(--blue-20)',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
               fontSize: '14px',
-              fontWeight: '500'
+              fontWeight: '500',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             onMouseEnter={(e) => {
               if (viewMode !== "heatmap") {
-                e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-                e.target.style.borderColor = '#3b82f6';
+                e.target.style.background = 'var(--glass-medium)';
+                e.target.style.transform = 'translateY(-1px)';
               }
             }}
             onMouseLeave={(e) => {
               if (viewMode !== "heatmap") {
-                e.target.style.background = 'rgba(15, 23, 42, 0.8)';
-                e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                e.target.style.background = 'var(--glass-light)';
+                e.target.style.transform = 'translateY(0)';
               }
             }}
           >
@@ -87,28 +68,27 @@ export function MapView() {
             <span>{viewMode === "trajectories" ? "Heatmap" : "Trajectories"}</span>
           </button>
           <button
-            onClick={toggleFullscreen}
+            onClick={handleFullscreenToggle}
+            className="glass-effect"
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '8px', 
               padding: '12px 20px', 
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '2px solid rgba(59, 130, 246, 0.3)',
               borderRadius: '12px', 
-              color: '#e2e8f0',
+              color: 'var(--blue-20)',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
               fontSize: '14px',
-              fontWeight: '500'
+              fontWeight: '500',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-              e.target.style.borderColor = '#3b82f6';
+              e.target.style.background = 'var(--glass-medium)';
+              e.target.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'rgba(15, 23, 42, 0.8)';
-              e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+              e.target.style.background = 'var(--glass-light)';
+              e.target.style.transform = 'translateY(0)';
             }}
           >
             <Maximize2 style={{ width: '18px', height: '18px' }} />
@@ -117,45 +97,52 @@ export function MapView() {
         </div>
       </div>
 
-      {/* 3D Ocean Map Container */}
-      <div style={{ 
+      {/* Professional 3D Ocean Map Container */}
+      <div className="gradient-level-3" style={{ 
         position: 'relative', 
         height: '500px', 
-        background: `
-          radial-gradient(ellipse at center, rgba(102, 194, 255, 0.1) 0%, transparent 70%),
-          linear-gradient(135deg, #80ccff 0%, #66c2ff 50%, #4db8ff 100%)
-        `,
         borderRadius: '20px', 
-        overflow: 'hidden', 
-        border: '2px solid rgba(102, 194, 255, 0.3)',
-        boxShadow: 'inset 0 0 100px rgba(102, 194, 255, 0.1), 0 20px 40px rgba(128, 204, 255, 0.4)'
+        overflow: 'hidden'
       }}>
-        {/* 3D Ocean Background */}
+        {/* Dark Professional 3D Ocean Background */}
         <div style={{ 
           position: 'absolute', 
           inset: 0, 
           background: `
-            radial-gradient(circle at 30% 20%, rgba(128, 204, 255, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 70% 80%, rgba(102, 194, 255, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(77, 184, 255, 0.1) 0%, transparent 70%)
+            radial-gradient(circle at 30% 20%, var(--blue-85) 0%, transparent 50%),
+            radial-gradient(circle at 70% 80%, var(--blue-80) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, var(--blue-75) 0%, transparent 70%)
           `,
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center'
         }}>
-          <div style={{ textAlign: 'center', color: '#60a5fa' }}>
-            <Globe style={{ width: '120px', height: '120px', margin: '0 auto 16px', opacity: 0.6, filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))' }} />
-            <p style={{ fontSize: '16px', fontWeight: '600', margin: 0, textShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>Global Ocean Coverage</p>
+          <div style={{ textAlign: 'center' }}>
+            <Globe style={{ 
+              width: '120px', 
+              height: '120px', 
+              margin: '0 auto 16px', 
+              opacity: 0.6, 
+              filter: 'drop-shadow(0 0 30px rgba(102, 163, 255, 0.6))',
+              color: 'var(--blue-40)'
+            }} />
+            <p style={{ 
+              fontSize: '16px', 
+              fontWeight: '600', 
+              margin: 0, 
+              textShadow: '0 0 15px rgba(102, 163, 255, 0.8)',
+              color: 'var(--blue-30)'
+            }}>Global Ocean Coverage</p>
           </div>
         </div>
 
-        {/* 3D Grid Pattern */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.1 }}>
+        {/* Dark Professional 3D Grid Pattern */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.2 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(30, 1fr)', gridTemplateRows: 'repeat(20, 1fr)', height: '100%' }}>
             {[...Array(600)].map((_, i) => (
               <div key={i} style={{ 
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                background: 'linear-gradient(45deg, transparent 0%, rgba(59, 130, 246, 0.05) 50%, transparent 100%)'
+                border: `1px solid var(--blue-70)`,
+                background: `linear-gradient(45deg, transparent 0%, var(--blue-85) 50%, transparent 100%)`
               }}></div>
             ))}
           </div>
@@ -176,54 +163,52 @@ export function MapView() {
             <div style={{ 
               width: '16px', 
               height: '16px', 
-              background: 'linear-gradient(135deg, #4ade80 0%, #10b981 50%, #059669 100%)',
+              background: 'var(--gradient-level-5)',
               borderRadius: '50%', 
-              boxShadow: '0 0 20px rgba(74, 222, 128, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3)',
+              boxShadow: 'var(--shadow-heavy)',
               animation: 'pulse 3s infinite',
-              position: 'relative'
+              position: 'relative',
+              border: `2px solid var(--blue-40)`
             }}>
               <div style={{ 
                 position: 'absolute', 
                 inset: '-4px',
-                background: 'linear-gradient(135deg, #4ade80, #10b981)',
+                background: 'var(--gradient-level-4)',
                 borderRadius: '50%', 
                 animation: 'ping 2s infinite', 
-                opacity: 0.4,
+                opacity: 0.6,
                 filter: 'blur(2px)'
               }}></div>
               <div style={{ 
                 position: 'absolute', 
                 inset: '-8px',
-                background: 'linear-gradient(135deg, #4ade80, #10b981)',
+                background: 'var(--gradient-level-3)',
                 borderRadius: '50%', 
                 animation: 'ping 2s infinite 0.5s', 
-                opacity: 0.2,
+                opacity: 0.3,
                 filter: 'blur(4px)'
               }}></div>
             </div>
-            <div style={{ 
+            <div className="gradient-level-2" style={{ 
               position: 'absolute', 
               top: '-32px', 
               left: '50%', 
               transform: 'translateX(-50%)', 
-              background: 'rgba(15, 23, 42, 0.95)',
               backdropFilter: 'blur(10px)',
-              color: 'white', 
+              color: 'var(--blue-20)', 
               fontSize: '11px', 
               padding: '6px 12px', 
               borderRadius: '8px', 
               opacity: 0, 
-              transition: 'opacity 0.3s ease', 
-              whiteSpace: 'nowrap',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+              transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+              whiteSpace: 'nowrap'
             }}>
               Float #{i + 1}
             </div>
           </div>
         ))}
 
-        {/* Animated Ocean Currents */}
+        {/* Dark Professional Animated Ocean Currents */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           {[...Array(12)].map((_, i) => (
             <div
@@ -231,115 +216,108 @@ export function MapView() {
               style={{
                 position: 'absolute',
                 width: '120px',
-                height: '3px',
-                background: 'linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.6) 50%, transparent 100%)',
-                opacity: 0.6,
+                height: '4px',
+                background: `linear-gradient(90deg, transparent 0%, var(--blue-60) 50%, transparent 100%)`,
+                opacity: 0.8,
                 animation: `pulse ${2 + i * 0.2}s infinite`,
                 left: `${10 + i * 7}%`,
                 top: `${20 + (i % 4) * 15}%`,
                 transform: `rotate(${i * 15 - 30}deg)`,
                 borderRadius: '2px',
-                boxShadow: '0 0 10px rgba(59, 130, 246, 0.4)'
+                boxShadow: `0 0 15px var(--blue-60)`
               }}
             />
           ))}
         </div>
 
-        {/* Enhanced Map Controls */}
-        <div style={{ 
+        {/* Professional Map Controls */}
+        <div className="gradient-level-2" style={{ 
           position: 'absolute', 
           top: '20px', 
           left: '20px', 
-          background: 'rgba(15, 23, 42, 0.95)',
           backdropFilter: 'blur(20px)',
           borderRadius: '16px', 
-          padding: '16px', 
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-          border: '1px solid rgba(59, 130, 246, 0.3)'
+          padding: '16px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ 
                 width: '12px', 
                 height: '12px', 
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                background: 'var(--gradient-level-5)',
                 borderRadius: '50%', 
                 animation: 'pulse 2s infinite',
-                boxShadow: '0 0 10px rgba(16, 185, 129, 0.6)'
+                boxShadow: 'var(--shadow-medium)',
+                border: `1px solid var(--blue-40)`
               }}></div>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0' }}>1,482 Active</span>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--blue-20)' }}>1,482 Active</span>
             </div>
-            <div style={{ width: '2px', height: '20px', background: 'linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.5), transparent)' }}></div>
+            <div style={{ width: '2px', height: '20px', background: 'var(--gradient-level-4)', borderRadius: '1px' }}></div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <MapPin style={{ width: '16px', height: '16px', color: '#60a5fa' }} />
-              <span style={{ fontSize: '14px', color: '#94a3b8' }}>Global Coverage</span>
+              <MapPin style={{ width: '16px', height: '16px', color: 'var(--blue-30)' }} />
+              <span style={{ fontSize: '14px', color: 'var(--blue-25)' }}>Global Coverage</span>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Legend */}
-        <div style={{ 
+        {/* Professional Legend */}
+        <div className="gradient-level-2" style={{ 
           position: 'absolute', 
           bottom: '20px', 
           left: '20px', 
-          background: 'rgba(15, 23, 42, 0.95)',
           backdropFilter: 'blur(20px)',
           borderRadius: '16px', 
-          padding: '16px', 
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-          border: '1px solid rgba(59, 130, 246, 0.3)'
+          padding: '16px'
         }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0', marginBottom: '12px' }}>Legend</div>
+          <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--blue-20)', marginBottom: '12px' }}>Legend</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ 
                 width: '12px', 
                 height: '12px', 
-                background: 'linear-gradient(135deg, #4ade80, #10b981)',
+                background: 'var(--gradient-level-5)',
                 borderRadius: '50%',
-                boxShadow: '0 0 8px rgba(74, 222, 128, 0.6)'
+                boxShadow: 'var(--shadow-light)',
+                border: `1px solid var(--blue-40)`
               }}></div>
-              <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Active Floats</span>
+              <span style={{ fontSize: '12px', color: 'var(--blue-25)' }}>Active Floats</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ 
                 width: '12px', 
                 height: '12px', 
-                background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+                background: 'var(--gradient-level-4)',
                 borderRadius: '50%',
-                boxShadow: '0 0 8px rgba(96, 165, 250, 0.6)'
+                boxShadow: 'var(--shadow-light)',
+                border: `1px solid var(--blue-50)`
               }}></div>
-              <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Data Collection</span>
+              <span style={{ fontSize: '12px', color: 'var(--blue-25)' }}>Data Collection</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ 
                 width: '12px', 
                 height: '3px', 
-                background: 'linear-gradient(90deg, transparent, #60a5fa, transparent)',
+                background: `linear-gradient(90deg, transparent, var(--blue-50), transparent)`,
                 borderRadius: '2px',
-                boxShadow: '0 0 8px rgba(96, 165, 250, 0.6)'
+                boxShadow: `0 0 8px var(--blue-50)`
               }}></div>
-              <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Ocean Currents</span>
+              <span style={{ fontSize: '12px', color: 'var(--blue-25)' }}>Ocean Currents</span>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Last Update */}
-        <div style={{ 
+        {/* Professional Last Update */}
+        <div className="gradient-level-2" style={{ 
           position: 'absolute', 
           bottom: '20px', 
           right: '20px', 
-          background: 'rgba(15, 23, 42, 0.95)',
           backdropFilter: 'blur(20px)',
-          color: 'white', 
           padding: '12px 16px', 
           borderRadius: '12px', 
-          fontSize: '12px',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+          fontSize: '12px'
         }}>
-          <div style={{ fontWeight: '600', color: '#e2e8f0' }}>Last Update</div>
-          <div style={{ color: '#94a3b8', marginTop: '2px' }}>2 min ago</div>
+          <div style={{ fontWeight: '600', color: 'var(--blue-20)' }}>Last Update</div>
+          <div style={{ color: 'var(--blue-25)', marginTop: '2px' }}>2 min ago</div>
         </div>
       </div>
     </div>
