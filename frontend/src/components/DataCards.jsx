@@ -122,48 +122,41 @@ export function DataCards() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ 
+          <div className="gradient-level-4" style={{ 
             padding: '12px', 
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
-            borderRadius: '16px',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)'
+            borderRadius: '16px'
           }}>
-            <BarChart3 style={{ width: '24px', height: '24px', color: '#60a5fa' }} />
+            <BarChart3 style={{ width: '24px', height: '24px', color: 'var(--blue-15)' }} />
           </div>
           <div>
             <h2 style={{ 
               fontSize: '24px', 
               fontWeight: '700', 
-              background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              margin: 0
+              color: 'var(--blue-15)',
+              margin: 0,
+              textShadow: '0 0 20px rgba(102, 163, 255, 0.5)'
             }}>Argo Attributes</h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', margin: '4px 0 0 0' }}>Real-time oceanographic measurements & analysis</p>
+            <p style={{ fontSize: '14px', color: 'var(--blue-20)', margin: '4px 0 0 0' }}>Real-time oceanographic measurements & analysis</p>
           </div>
         </div>
-        <button style={{ 
+        <button className="glass-effect" style={{ 
           display: 'flex', 
           alignItems: 'center', 
           gap: '8px', 
           padding: '12px 20px', 
           fontSize: '14px', 
           fontWeight: '500', 
-          color: '#60a5fa', 
-          background: 'rgba(59, 130, 246, 0.1)',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
           borderRadius: '12px', 
           cursor: 'pointer',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onMouseEnter={(e) => {
-          e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-          e.target.style.borderColor = '#3b82f6';
+          e.target.style.background = 'var(--glass-medium)';
+          e.target.style.transform = 'translateY(-1px)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-          e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+          e.target.style.background = 'var(--glass-light)';
+          e.target.style.transform = 'translateY(0)';
         }}
         >
           <Eye style={{ width: '16px', height: '16px' }} />
@@ -174,23 +167,23 @@ export function DataCards() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
         {dataCards.map((card, index) => (
           <div key={index} style={{ 
-            background: 'rgba(77, 184, 255, 0.9)',
+            background: '#000000',
             backdropFilter: 'blur(20px)',
             borderRadius: '20px', 
             padding: '24px', 
-            border: `2px solid ${card.borderColor}`,
-            boxShadow: `0 20px 40px rgba(77, 184, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+            border: `2px solid var(--blue-70)`,
+            boxShadow: 'var(--shadow-heavy), inset 0 1px 0 rgba(102, 163, 255, 0.1)',
             position: 'relative',
             overflow: 'hidden',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-8px)';
-            e.target.style.boxShadow = `0 32px 64px rgba(77, 184, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2)`;
+            e.target.style.boxShadow = 'var(--shadow-heavy), 0 0 30px rgba(102, 163, 255, 0.4), inset 0 1px 0 rgba(102, 163, 255, 0.2)';
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = `0 20px 40px rgba(77, 184, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)`;
+            e.target.style.boxShadow = 'var(--shadow-heavy), inset 0 1px 0 rgba(102, 163, 255, 0.1)';
           }}
           >
             {/* Background Gradient */}
@@ -217,8 +210,8 @@ export function DataCards() {
                     <card.icon style={{ width: '24px', height: '24px', color: card.iconColor }} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#e2e8f0', margin: 0 }}>{card.title}</h3>
-                    <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0 0' }}>{card.subtitle}</p>
+                    <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--blue-15)', margin: 0 }}>{card.title}</h3>
+                    <p style={{ fontSize: '12px', color: 'var(--blue-25)', margin: '2px 0 0 0' }}>{card.subtitle}</p>
                   </div>
                 </div>
                 <div style={{ 
@@ -239,7 +232,7 @@ export function DataCards() {
               </div>
               
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                <span style={{ fontSize: '32px', fontWeight: '800', color: '#ffffff' }}>{card.value}</span>
+                <span style={{ fontSize: '32px', fontWeight: '800', color: 'var(--blue-15)' }}>{card.value}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '8px', background: card.changeType === 'positive' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
                   {card.changeType === 'positive' ? 
                     <ArrowUp style={{ width: '12px', height: '12px', color: '#10b981' }} /> : 
@@ -252,23 +245,23 @@ export function DataCards() {
               </div>
               
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>{card.data}</span>
+                <span style={{ fontSize: '12px', color: 'var(--blue-25)' }}>{card.data}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Zap style={{ width: '12px', height: '12px', color: '#60a5fa' }} />
-                  <span style={{ fontSize: '11px', color: '#60a5fa', fontWeight: '500' }}>Live</span>
+                  <Zap style={{ width: '12px', height: '12px', color: 'var(--blue-30)' }} />
+                  <span style={{ fontSize: '11px', color: 'var(--blue-30)', fontWeight: '500' }}>Live</span>
                 </div>
               </div>
               
               {/* Enhanced Mini Chart */}
               <div style={{ 
                 height: '40px', 
-                background: 'rgba(0, 46, 77, 0.6)',
+                background: 'var(--blue-90)',
                 borderRadius: '12px', 
                 display: 'flex', 
                 alignItems: 'end', 
                 gap: '2px', 
                 padding: '8px',
-                border: '1px solid rgba(59, 130, 246, 0.1)'
+                border: '1px solid var(--blue-70)'
               }}>
                 {card.trend.map((value, i) => (
                   <div

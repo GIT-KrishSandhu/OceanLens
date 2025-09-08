@@ -1,14 +1,29 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Home, Database, BarChart3, MessageCircle, User, Bell, Search, Menu, Download, Settings, ChevronDown, LogOut, LogIn, UserPlus } from "lucide-react";
+import {
+  Home,
+  Database,
+  BarChart3,
+  MessageCircle,
+  User,
+  Bell,
+  Search,
+  Menu,
+  Download,
+  Settings,
+  ChevronDown,
+  LogOut,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
 
 export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
+
   const navItems = [
     { name: "Dashboard", icon: Home, path: "/" },
     { name: "Data Explorer", icon: Database, path: "/data" },
@@ -18,345 +33,331 @@ export function Navigation() {
   const handleLogout = () => {
     logout();
     setIsProfileOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <nav style={{
-      background: `
-        radial-gradient(ellipse at top, rgba(0, 46, 77, 0.9) 0%, transparent 70%),
-        linear-gradient(135deg, #002e4d 0%, #003d66 25%, #004d80 50%, #005c99 75%, #006bb3 100%)
-      `,
-      borderBottom: '1px solid rgba(0, 46, 77, 0.3)',
-      boxShadow: `
-        0 8px 32px rgba(0, 46, 77, 0.2),
-        0 4px 16px rgba(0, 61, 102, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2)
-      `,
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-      backdropFilter: 'blur(20px)'
-    }}>
-      <div style={{ padding: '16px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <nav
+      className="gradient-level-1"
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 30,
+        backdropFilter: "blur(20px)",
+        borderBottom: "2px solid var(--blue-70)",
+      }}
+    >
+      <div style={{ padding: "2px 24px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           {/* Logo and Brand */}
-          <div style={{ padding: '4px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              {/* Logo and Brand */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Link to="/">
-                    <img
-                      src="/WhatsApp_Image_2025-09-08_at_14.18.35_c9b9a178-removebg-preview.png"
-                      alt="OceanLens Logo"
-                      style={{ height: "48px", width: "auto" }}
-                    />
-                  </Link>
-
-                </div>
-              </div>
-            </div>
-       
+          <div>
+            <Link to="/">
+              <img
+                src="/unnamed-removebg-preview.png"
+                alt="OceanLens Logo"
+                style={{ height: "80px", width: "auto" }}
+              />
+            </Link>
           </div>
 
           {/* Search Bar */}
-          <div style={{ display: 'flex', flex: 1, maxWidth: '500px', margin: '0 32px' }}>
-            <div style={{ position: 'relative', width: '100%' }}>
-              <Search style={{ 
-                position: 'absolute', 
-                left: '16px', 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                color: '#64748b', 
-                width: '20px', 
-                height: '20px' 
-              }} />
+          <div
+            style={{
+              display: "flex",
+              flex: 1,
+              maxWidth: "500px",
+              margin: "0 32px",
+            }}
+          >
+            <div style={{ position: "relative", width: "100%" }}>
+              <Search
+                style={{
+                  position: "absolute",
+                  left: "16px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "var(--blue-30)",
+                  width: "20px",
+                  height: "20px",
+                }}
+              />
               <input
                 type="text"
                 placeholder="Search ocean data, floats, or locations..."
+                className="glass-effect"
                 style={{
-                  width: '100%',
-                  padding: '12px 16px 12px 48px',
-                  border: '2px solid rgba(0, 46, 77, 0.3)',
-                  borderRadius: '16px',
-                  background: `
-                    radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%)
-                  `,
-                  color: '#1e293b',
-                  fontSize: '14px',
-                  outline: 'none',
-                  backdropFilter: 'blur(20px)',
-                  transition: 'all 0.3s ease',
-                  boxShadow: `
-                    0 4px 16px rgba(0, 46, 77, 0.2),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3)
-                  `
+                  width: "100%",
+                  padding: "8px 16px 8px 48px",
+                  borderRadius: "16px",
+                  color: "var(--blue-15)",
+                  fontSize: "14px",
+                  outline: "none",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)';
+                  e.target.style.borderColor = "var(--blue-50)";
+                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 102, 255, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(59, 130, 246, 0.2)';
-                  e.target.style.boxShadow = 'none';
+                  e.target.style.borderColor = "var(--blue-70)";
+                  e.target.style.boxShadow = "var(--shadow-medium)";
                 }}
               />
             </div>
           </div>
 
           {/* Navigation Items */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             {navItems.map((item) => (
               <button
                 key={item.name}
+                onClick={() => navigate(item.path)}
+                className={
+                  location.pathname === item.path
+                    ? "professional-button gradient-level-4"
+                    : "glass-effect"
+                }
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '12px 20px',
-                  borderRadius: '12px',
-                  background: location.pathname === item.path 
-                    ? `
-                        radial-gradient(circle at center, rgba(59, 130, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%),
-                        linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)
-                      `
-                    : 'transparent',
-                  color: location.pathname === item.path ? '#3b82f6' : '#64748b',
-                  border: location.pathname === item.path 
-                    ? '1px solid rgba(59, 130, 246, 0.4)'
-                    : '1px solid transparent',
-                  boxShadow: location.pathname === item.path 
-                    ? '0 4px 16px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                    : 'none',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "6px 12px",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
                 onMouseEnter={(e) => {
                   if (location.pathname !== item.path) {
-                    e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-                    e.target.style.color = '#1e293b';
+                    e.target.style.background = "var(--glass-medium)";
+                    e.target.style.transform = "translateY(-1px)";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (location.pathname !== item.path) {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#64748b';
+                    e.target.style.background = "var(--glass-light)";
+                    e.target.style.transform = "translateY(0)";
                   }
                 }}
               >
-                <item.icon style={{ width: '18px', height: '18px' }} />
+                <item.icon style={{ width: "18px", height: "18px" }} />
                 <span>{item.name}</span>
               </button>
             ))}
           </div>
 
           {/* Right Side Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '24px' }}>
-            <button style={{
-              padding: '10px',
-              color: '#64748b',
-              background: `
-                radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)
-              `,
-              border: '1px solid rgba(59, 130, 246, 0.2)',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-            }}>
-              <Bell style={{ width: '20px', height: '20px' }} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              marginLeft: "24px",
+            }}
+          >
+            <button
+              className="glass-effect"
+              style={{
+                padding: "8px",
+                color: "var(--blue-25)",
+                borderRadius: "12px",
+                cursor: "pointer",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              <Bell style={{ width: "20px", height: "20px" }} />
             </button>
-            
-            <button style={{
-              padding: '10px',
-              color: '#64748b',
-              background: `
-                radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)
-              `,
-              border: '1px solid rgba(59, 130, 246, 0.2)',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-            }}>
-              <MessageCircle style={{ width: '20px', height: '20px' }} />
-            </button>
-            
-            <div style={{ width: '1px', height: '24px', background: 'rgba(59, 130, 246, 0.2)' }}></div>
-            
+
+            <div
+              style={{
+                width: "2px",
+                height: "24px",
+                background: "var(--gradient-level-3)",
+                borderRadius: "1px",
+              }}
+            ></div>
+
             {/* Authentication Section */}
             {user ? (
               /* User Profile Dropdown */
-              <div style={{ position: 'relative' }}>
-                <button 
+              <div style={{ position: "relative" }}>
+                <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="professional-button gradient-level-4"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 16px',
-                  background: `
-                    radial-gradient(circle at center, rgba(59, 130, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%),
-                    linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)
-                  `,
-                  border: '1px solid rgba(59, 130, 246, 0.4)',
-                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                    borderRadius: '12px',
-                    color: '#1e293b',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 16px",
+                    borderRadius: "12px",
+                    cursor: "pointer",
                   }}
                 >
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.4)'
-                  }}>
-                    <User style={{ width: '16px', height: '16px', color: 'white' }} />
-                  </div>
-                  <span style={{ fontSize: '14px', fontWeight: '500' }}>{user.name}</span>
-                  <ChevronDown style={{ width: '16px', height: '16px' }} />
-                </button>
-              
-              {/* Dropdown Menu */}
-              {isProfileOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: '8px',
-                  background: 'rgba(15, 23, 42, 0.95)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  borderRadius: '16px',
-                  padding: '8px',
-                  minWidth: '200px',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-                  zIndex: 1000
-                }}>
-                  <button style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#1e293b',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    fontSize: '14px'
-                  }}>
-                    <Download style={{ width: '16px', height: '16px' }} />
-                    <span>Downloads</span>
-                  </button>
-                  <button style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#1e293b',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    fontSize: '14px'
-                  }}>
-                    <Settings style={{ width: '16px', height: '16px' }} />
-                    <span>Settings</span>
-                  </button>
-                  <div style={{ height: '1px', background: 'rgba(59, 130, 246, 0.2)', margin: '8px 0' }}></div>
-                  <button 
-                    onClick={handleLogout}
+                  <div
                     style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '12px 16px',
-                      background: 'transparent',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: '#ef4444',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      fontSize: '14px'
-                    }}>
-                    <LogOut style={{ width: '16px', height: '16px' }} />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              )}
-            </div>
+                      width: "32px",
+                      height: "32px",
+                      background: "var(--gradient-level-5)",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "var(--shadow-medium)",
+                    }}
+                  >
+                    <User
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        color: "var(--blue-15)",
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                    {user.name}
+                  </span>
+                  <ChevronDown style={{ width: "16px", height: "16px" }} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isProfileOpen && (
+                  <div
+                    className="gradient-level-2"
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      right: 0,
+                      marginTop: "8px",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "16px",
+                      padding: "8px",
+                      minWidth: "200px",
+                      zIndex: 1000,
+                    }}
+                  >
+                    <button
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "12px 16px",
+                        background: "transparent",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "var(--blue-20)",
+                        cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <Download style={{ width: "16px", height: "16px" }} />
+                      <span>Downloads</span>
+                    </button>
+                    <button
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "12px 16px",
+                        background: "transparent",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "var(--blue-20)",
+                        cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <Settings style={{ width: "16px", height: "16px" }} />
+                      <span>Settings</span>
+                    </button>
+                    <div
+                      style={{
+                        height: "2px",
+                        background: "var(--gradient-level-4)",
+                        margin: "8px 0",
+                        borderRadius: "1px",
+                      }}
+                    ></div>
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "12px 16px",
+                        background: "transparent",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "#ef4444",
+                        cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <LogOut style={{ width: "16px", height: "16px" }} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               /* Login/Signup Buttons */
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
                 <button
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate("/login")}
+                  className="glass-effect"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 16px',
-                    background: 'transparent',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '12px',
-                    color: '#1e293b',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    fontSize: '14px',
-                    fontWeight: '500'
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 16px",
+                    borderRadius: "12px",
+                    color: "var(--blue-20)",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-                    e.target.style.borderColor = '#3b82f6';
+                    e.target.style.background = "var(--glass-medium)";
+                    e.target.style.transform = "translateY(-1px)";
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                    e.target.style.background = "var(--glass-light)";
+                    e.target.style.transform = "translateY(0)";
                   }}
                 >
-                  <LogIn style={{ width: '16px', height: '16px' }} />
+                  <LogIn style={{ width: "16px", height: "16px" }} />
                   <span>Login</span>
                 </button>
                 <button
-                  onClick={() => navigate('/signup')}
+                  onClick={() => navigate("/signup")}
+                  className="professional-button gradient-level-5"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 16px',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
-                    border: 'none',
-                    borderRadius: '12px',
-                    color: 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.4)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.6)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.4)';
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 16px",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "500",
                   }}
                 >
-                  <UserPlus style={{ width: '16px', height: '16px' }} />
+                  <UserPlus style={{ width: "16px", height: "16px" }} />
                   <span>Sign Up</span>
                 </button>
               </div>
