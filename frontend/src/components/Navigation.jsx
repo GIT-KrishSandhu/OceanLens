@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Home, Database, BarChart3, MessageCircle, User, Bell, Search, Menu, Download, Settings, ChevronDown, LogOut } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { Home, Database, BarChart3, MessageCircle, User, Bell, Search, Menu, Download, Settings, ChevronDown, LogOut, LogIn, UserPlus } from "lucide-react";
 
 export function Navigation() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   const navItems = [
@@ -12,55 +15,49 @@ export function Navigation() {
     { name: "Analytics", icon: BarChart3, path: "/analytics" },
   ];
 
+  const handleLogout = () => {
+    logout();
+    setIsProfileOpen(false);
+    navigate('/');
+  };
+
   return (
     <nav style={{
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-      borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+      background: `
+        radial-gradient(ellipse at top, rgba(0, 46, 77, 0.9) 0%, transparent 70%),
+        linear-gradient(135deg, #002e4d 0%, #003d66 25%, #004d80 50%, #005c99 75%, #006bb3 100%)
+      `,
+      borderBottom: '1px solid rgba(0, 46, 77, 0.3)',
+      boxShadow: `
+        0 8px 32px rgba(0, 46, 77, 0.2),
+        0 4px 16px rgba(0, 61, 102, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2)
+      `,
       position: 'sticky',
       top: 0,
       zIndex: 50,
-      backdropFilter: 'blur(10px)'
+      backdropFilter: 'blur(20px)'
     }}>
       <div style={{ padding: '16px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo and Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4)',
-                position: 'relative'
-              }}>
-                <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px' }}>O</span>
-                <div style={{
-                  position: 'absolute',
-                  inset: '-2px',
-                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
-                  borderRadius: '18px',
-                  zIndex: -1,
-                  opacity: 0.3,
-                  filter: 'blur(8px)'
-                }}></div>
-              </div>
-              <div>
-                <h1 style={{ 
-                  fontSize: '28px', 
-                  fontWeight: 'bold', 
-                  background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  margin: 0
-                }}>OceanLens</h1>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0 0' }}>Advanced Ocean Analytics</p>
+          <div style={{ padding: '4px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              {/* Logo and Brand */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Link to="/">
+                    <img
+                      src="/WhatsApp_Image_2025-09-08_at_14.18.35_c9b9a178-removebg-preview.png"
+                      alt="OceanLens Logo"
+                      style={{ height: "48px", width: "auto" }}
+                    />
+                  </Link>
+
+                </div>
               </div>
             </div>
+       
           </div>
 
           {/* Search Bar */}
@@ -81,14 +78,20 @@ export function Navigation() {
                 style={{
                   width: '100%',
                   padding: '12px 16px 12px 48px',
-                  border: '2px solid rgba(59, 130, 246, 0.2)',
+                  border: '2px solid rgba(0, 46, 77, 0.3)',
                   borderRadius: '16px',
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  color: 'white',
+                  background: `
+                    radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%)
+                  `,
+                  color: '#1e293b',
                   fontSize: '14px',
                   outline: 'none',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.3s ease'
+                  backdropFilter: 'blur(20px)',
+                  transition: 'all 0.3s ease',
+                  boxShadow: `
+                    0 4px 16px rgba(0, 46, 77, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3)
+                  `
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = '#3b82f6';
@@ -114,12 +117,18 @@ export function Navigation() {
                   padding: '12px 20px',
                   borderRadius: '12px',
                   background: location.pathname === item.path 
-                    ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)'
+                    ? `
+                        radial-gradient(circle at center, rgba(59, 130, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%),
+                        linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)
+                      `
                     : 'transparent',
-                  color: location.pathname === item.path ? '#60a5fa' : '#94a3b8',
+                  color: location.pathname === item.path ? '#3b82f6' : '#64748b',
                   border: location.pathname === item.path 
-                    ? '1px solid rgba(59, 130, 246, 0.3)'
+                    ? '1px solid rgba(59, 130, 246, 0.4)'
                     : '1px solid transparent',
+                  boxShadow: location.pathname === item.path 
+                    ? '0 4px 16px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                    : 'none',
                   transition: 'all 0.3s ease',
                   cursor: 'pointer',
                   fontSize: '14px',
@@ -128,13 +137,13 @@ export function Navigation() {
                 onMouseEnter={(e) => {
                   if (location.pathname !== item.path) {
                     e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-                    e.target.style.color = '#e2e8f0';
+                    e.target.style.color = '#1e293b';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (location.pathname !== item.path) {
                     e.target.style.background = 'transparent';
-                    e.target.style.color = '#94a3b8';
+                    e.target.style.color = '#64748b';
                   }
                 }}
               >
@@ -148,62 +157,74 @@ export function Navigation() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '24px' }}>
             <button style={{
               padding: '10px',
-              color: '#94a3b8',
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: 'none',
+              color: '#64748b',
+              background: `
+                radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)
+              `,
+              border: '1px solid rgba(59, 130, 246, 0.2)',
               borderRadius: '12px',
               cursor: 'pointer',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
             }}>
               <Bell style={{ width: '20px', height: '20px' }} />
             </button>
             
             <button style={{
               padding: '10px',
-              color: '#94a3b8',
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: 'none',
+              color: '#64748b',
+              background: `
+                radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)
+              `,
+              border: '1px solid rgba(59, 130, 246, 0.2)',
               borderRadius: '12px',
               cursor: 'pointer',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
             }}>
               <MessageCircle style={{ width: '20px', height: '20px' }} />
             </button>
             
             <div style={{ width: '1px', height: '24px', background: 'rgba(59, 130, 246, 0.2)' }}></div>
             
-            {/* User Profile Dropdown */}
-            <div style={{ position: 'relative' }}>
-              <button 
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  borderRadius: '12px',
-                  color: '#e2e8f0',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.4)'
-                }}>
-                  <User style={{ width: '16px', height: '16px', color: 'white' }} />
-                </div>
-                <span style={{ fontSize: '14px', fontWeight: '500' }}>Admin</span>
-                <ChevronDown style={{ width: '16px', height: '16px' }} />
-              </button>
+            {/* Authentication Section */}
+            {user ? (
+              /* User Profile Dropdown */
+              <div style={{ position: 'relative' }}>
+                <button 
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                  background: `
+                    radial-gradient(circle at center, rgba(59, 130, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%),
+                    linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)
+                  `,
+                  border: '1px solid rgba(59, 130, 246, 0.4)',
+                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                    borderRadius: '12px',
+                    color: '#1e293b',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.4)'
+                  }}>
+                    <User style={{ width: '16px', height: '16px', color: 'white' }} />
+                  </div>
+                  <span style={{ fontSize: '14px', fontWeight: '500' }}>{user.name}</span>
+                  <ChevronDown style={{ width: '16px', height: '16px' }} />
+                </button>
               
               {/* Dropdown Menu */}
               {isProfileOpen && (
@@ -230,7 +251,7 @@ export function Navigation() {
                     background: 'transparent',
                     border: 'none',
                     borderRadius: '8px',
-                    color: '#e2e8f0',
+                    color: '#1e293b',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     fontSize: '14px'
@@ -247,7 +268,7 @@ export function Navigation() {
                     background: 'transparent',
                     border: 'none',
                     borderRadius: '8px',
-                    color: '#e2e8f0',
+                    color: '#1e293b',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     fontSize: '14px'
@@ -256,26 +277,90 @@ export function Navigation() {
                     <span>Settings</span>
                   </button>
                   <div style={{ height: '1px', background: 'rgba(59, 130, 246, 0.2)', margin: '8px 0' }}></div>
-                  <button style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#ef4444',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    fontSize: '14px'
-                  }}>
+                  <button 
+                    onClick={handleLogout}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '12px 16px',
+                      background: 'transparent',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#ef4444',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      fontSize: '14px'
+                    }}>
                     <LogOut style={{ width: '16px', height: '16px' }} />
                     <span>Logout</span>
                   </button>
                 </div>
               )}
             </div>
+            ) : (
+              /* Login/Signup Buttons */
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button
+                  onClick={() => navigate('/login')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    background: 'transparent',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '12px',
+                    color: '#1e293b',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'rgba(59, 130, 246, 0.1)';
+                    e.target.style.borderColor = '#3b82f6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'transparent';
+                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                  }}
+                >
+                  <LogIn style={{ width: '16px', height: '16px' }} />
+                  <span>Login</span>
+                </button>
+                <button
+                  onClick={() => navigate('/signup')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.4)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.6)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.4)';
+                  }}
+                >
+                  <UserPlus style={{ width: '16px', height: '16px' }} />
+                  <span>Sign Up</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

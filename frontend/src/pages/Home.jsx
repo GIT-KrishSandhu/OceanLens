@@ -12,8 +12,14 @@ export default function Home() {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-      position: 'relative'
+      background: `
+        radial-gradient(ellipse at top left, rgba(0, 46, 77, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(0, 61, 102, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at center, rgba(0, 77, 128, 0.4) 0%, transparent 70%),
+        linear-gradient(135deg, #002e4d 0%, #003d66 30%, #004d80 60%, #005c99 100%)
+      `,
+      position: 'relative',
+      boxShadow: 'inset 0 0 200px rgba(0, 46, 77, 0.1)'
     }}>
       {/* Background Effects */}
       <div style={{
@@ -23,12 +29,14 @@ export default function Home() {
         right: 0,
         bottom: 0,
         background: `
-          radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%)
+          radial-gradient(ellipse 800px 600px at 20% 80%, rgba(128, 204, 255, 0.15) 0%, transparent 60%),
+          radial-gradient(ellipse 600px 800px at 80% 20%, rgba(102, 194, 255, 0.12) 0%, transparent 60%),
+          radial-gradient(ellipse 1000px 400px at 50% 50%, rgba(77, 184, 255, 0.1) 0%, transparent 70%),
+          radial-gradient(ellipse 400px 1000px at 70% 30%, rgba(51, 173, 255, 0.08) 0%, transparent 80%)
         `,
         pointerEvents: 'none',
-        zIndex: 0
+        zIndex: 0,
+        filter: 'blur(1px)'
       }}></div>
 
       <Navigation />
@@ -52,11 +60,11 @@ export default function Home() {
         >
           {/* Top Section - Map */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'rgba(128, 204, 255, 0.9)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(102, 194, 255, 0.3)',
+            boxShadow: '0 20px 40px rgba(128, 204, 255, 0.4)',
             overflow: 'hidden',
             position: 'relative'
           }}>
@@ -65,11 +73,11 @@ export default function Home() {
 
           {/* Bottom Section - Attribute Cards */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'rgba(102, 194, 255, 0.9)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(77, 184, 255, 0.3)',
+            boxShadow: '0 20px 40px rgba(102, 194, 255, 0.4)',
             padding: '24px',
             position: 'relative'
           }}>

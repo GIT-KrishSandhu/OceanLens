@@ -1,6 +1,18 @@
-import { AlertTriangle, TrendingUp, Waves, Thermometer, Droplets, Gauge, Activity, CheckCircle, BarChart3, Eye, Zap, ArrowUp, ArrowDown } from "lucide-react"
+import { AlertTriangle, TrendingUp, Waves, Thermometer, Droplets, Gauge, Activity, CheckCircle, BarChart3, Eye, Zap, ArrowUp, ArrowDown, Download, Lock } from "lucide-react"
+import { useAuth } from "../contexts/AuthContext"
 
 export function DataCards() {
+  const { user } = useAuth();
+  
+  const handleExport = (cardTitle) => {
+    if (!user) {
+      alert('Please login to export data');
+      return;
+    }
+    console.log(`Exporting ${cardTitle} data...`);
+    // Here you would implement actual export functionality
+  };
+
   const dataCards = [
     {
       title: "Temperature",
@@ -162,23 +174,23 @@ export function DataCards() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
         {dataCards.map((card, index) => (
           <div key={index} style={{ 
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'rgba(77, 184, 255, 0.9)',
             backdropFilter: 'blur(20px)',
             borderRadius: '20px', 
             padding: '24px', 
             border: `2px solid ${card.borderColor}`,
-            boxShadow: `0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+            boxShadow: `0 20px 40px rgba(77, 184, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
             position: 'relative',
             overflow: 'hidden',
             transition: 'all 0.3s ease'
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-8px)';
-            e.target.style.boxShadow = `0 32px 64px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)`;
+            e.target.style.boxShadow = `0 32px 64px rgba(77, 184, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2)`;
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = `0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)`;
+            e.target.style.boxShadow = `0 20px 40px rgba(77, 184, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)`;
           }}
           >
             {/* Background Gradient */}
@@ -250,7 +262,7 @@ export function DataCards() {
               {/* Enhanced Mini Chart */}
               <div style={{ 
                 height: '40px', 
-                background: 'rgba(15, 23, 42, 0.6)',
+                background: 'rgba(0, 46, 77, 0.6)',
                 borderRadius: '12px', 
                 display: 'flex', 
                 alignItems: 'end', 
@@ -272,6 +284,43 @@ export function DataCards() {
                   ></div>
                 ))}
               </div>
+
+              {/* Export Button */}
+              <button
+                onClick={() => handleExport(card.title)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  background: user ? 'rgba(16, 185, 129, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+                  border: user ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(107, 114, 128, 0.3)',
+                  borderRadius: '8px',
+                  color: user ? '#10b981' : '#6b7280',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  cursor: user ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.3s ease',
+                  marginTop: '12px'
+                }}
+                onMouseEnter={(e) => {
+                  if (user) {
+                    e.target.style.background = 'rgba(16, 185, 129, 0.3)';
+                    e.target.style.borderColor = '#10b981';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (user) {
+                    e.target.style.background = 'rgba(16, 185, 129, 0.2)';
+                    e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                  }
+                }}
+              >
+                {user ? <Download style={{ width: '14px', height: '14px' }} /> : <Lock style={{ width: '14px', height: '14px' }} />}
+                <span>{user ? 'Export Data' : 'Login Required'}</span>
+              </button>
             </div>
           </div>
         ))}

@@ -6,6 +6,23 @@ import { BarChart3, ToggleLeft, ToggleRight, MapPin, Activity, Globe, Layers, Ma
 export function MapView() {
   const [chatbotEnabled, setChatbotEnabled] = useState(false)
   const [viewMode, setViewMode] = useState("trajectories")
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullscreen(true)
+      }).catch(err => {
+        console.log('Error attempting to enable fullscreen:', err)
+      })
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false)
+      }).catch(err => {
+        console.log('Error attempting to exit fullscreen:', err)
+      })
+    }
+  }
 
   return (
     <div style={{ padding: '24px', height: '100%' }}>
@@ -34,34 +51,43 @@ export function MapView() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
-            onClick={() => setViewMode(viewMode === "trajectories" ? "heatmap" : "trajectories")}
+            onClick={() => {
+              const newMode = viewMode === "trajectories" ? "heatmap" : "trajectories";
+              setViewMode(newMode);
+              console.log(`Switched to ${newMode} view`);
+            }}
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '8px', 
               padding: '12px 20px', 
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '2px solid rgba(59, 130, 246, 0.3)',
+              background: viewMode === "heatmap" ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.8)',
+              border: viewMode === "heatmap" ? '2px solid #3b82f6' : '2px solid rgba(59, 130, 246, 0.3)',
               borderRadius: '12px', 
-              color: '#e2e8f0',
+              color: viewMode === "heatmap" ? '#60a5fa' : '#e2e8f0',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               fontSize: '14px',
               fontWeight: '500'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-              e.target.style.borderColor = '#3b82f6';
+              if (viewMode !== "heatmap") {
+                e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+                e.target.style.borderColor = '#3b82f6';
+              }
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'rgba(15, 23, 42, 0.8)';
-              e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+              if (viewMode !== "heatmap") {
+                e.target.style.background = 'rgba(15, 23, 42, 0.8)';
+                e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+              }
             }}
           >
             <Layers style={{ width: '18px', height: '18px' }} />
             <span>{viewMode === "trajectories" ? "Heatmap" : "Trajectories"}</span>
           </button>
           <button
+            onClick={toggleFullscreen}
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -86,7 +112,7 @@ export function MapView() {
             }}
           >
             <Maximize2 style={{ width: '18px', height: '18px' }} />
-            <span>Fullscreen</span>
+            <span>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
           </button>
         </div>
       </div>
@@ -96,23 +122,22 @@ export function MapView() {
         position: 'relative', 
         height: '500px', 
         background: `
-          radial-gradient(ellipse at center, rgba(6, 182, 212, 0.1) 0%, transparent 70%),
-          linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)
+          radial-gradient(ellipse at center, rgba(102, 194, 255, 0.1) 0%, transparent 70%),
+          linear-gradient(135deg, #80ccff 0%, #66c2ff 50%, #4db8ff 100%)
         `,
         borderRadius: '20px', 
         overflow: 'hidden', 
-        border: '2px solid rgba(59, 130, 246, 0.2)',
-        boxShadow: 'inset 0 0 100px rgba(6, 182, 212, 0.1), 0 20px 40px rgba(0, 0, 0, 0.3)',
-        position: 'relative'
+        border: '2px solid rgba(102, 194, 255, 0.3)',
+        boxShadow: 'inset 0 0 100px rgba(102, 194, 255, 0.1), 0 20px 40px rgba(128, 204, 255, 0.4)'
       }}>
         {/* 3D Ocean Background */}
         <div style={{ 
           position: 'absolute', 
           inset: 0, 
           background: `
-            radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 70% 80%, rgba(6, 182, 212, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 70%)
+            radial-gradient(circle at 30% 20%, rgba(128, 204, 255, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 70% 80%, rgba(102, 194, 255, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(77, 184, 255, 0.1) 0%, transparent 70%)
           `,
           display: 'flex', 
           alignItems: 'center', 
