@@ -26,10 +26,10 @@ export function Sidebar({ isOpen, onToggle }) {
       top: '80px',
       height: 'calc(100vh - 80px)',
       width: '320px',
-      background: 'rgba(15, 23, 42, 0.95)',
+      background: 'rgba(128, 204, 255, 0.95)',
       backdropFilter: 'blur(20px)',
-      borderRight: '1px solid rgba(59, 130, 246, 0.2)',
-      boxShadow: '20px 0 40px rgba(0, 0, 0, 0.3)',
+      borderRight: '1px solid rgba(102, 194, 255, 0.3)',
+      boxShadow: '20px 0 40px rgba(128, 204, 255, 0.4)',
       zIndex: 40,
       display: 'flex',
       flexDirection: 'column'
@@ -97,7 +97,7 @@ export function Sidebar({ isOpen, onToggle }) {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                background: 'rgba(15, 23, 42, 0.8)',
+                background: 'rgba(0, 46, 77, 0.8)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '12px',
                 color: '#e2e8f0',
@@ -147,7 +147,7 @@ export function Sidebar({ isOpen, onToggle }) {
               defaultValue="2018-01-01"
               style={{
                 padding: '12px',
-                background: 'rgba(15, 23, 42, 0.8)',
+                background: 'rgba(0, 46, 77, 0.8)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '12px',
                 color: '#e2e8f0',
@@ -161,7 +161,7 @@ export function Sidebar({ isOpen, onToggle }) {
               defaultValue="2024-12-31"
               style={{
                 padding: '12px',
-                background: 'rgba(15, 23, 42, 0.8)',
+                background: 'rgba(0, 46, 77, 0.8)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '12px',
                 color: '#e2e8f0',
@@ -212,7 +212,7 @@ export function Sidebar({ isOpen, onToggle }) {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                background: 'rgba(15, 23, 42, 0.8)',
+                background: 'rgba(0, 46, 77, 0.8)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '12px',
                 color: '#e2e8f0',

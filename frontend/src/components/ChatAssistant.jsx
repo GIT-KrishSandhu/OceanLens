@@ -1,9 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { MessageCircle, Send, X, Bot, User, BarChart3, Download, RefreshCw, Zap } from "lucide-react"
+import { MessageCircle, Send, X, Bot, User, BarChart3, Download, RefreshCw, Zap, Lock } from "lucide-react"
+import { useAuth } from "../contexts/AuthContext"
 
 export function ChatAssistant({ isOpen, onToggle }) {
+  const { user } = useAuth();
+  
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -54,6 +57,15 @@ export function ChatAssistant({ isOpen, onToggle }) {
     }
   }
 
+  const handleDownload = () => {
+    if (!user) {
+      alert('Please login to download data');
+      return;
+    }
+    console.log('Downloading chat data...');
+    // Here you would implement actual download functionality
+  }
+
   if (!isOpen) return null
 
   return (
@@ -63,10 +75,10 @@ export function ChatAssistant({ isOpen, onToggle }) {
       top: '80px',
       height: 'calc(100vh - 80px)',
       width: '400px',
-      background: 'rgba(15, 23, 42, 0.95)',
+      background: 'rgba(128, 204, 255, 0.95)',
       backdropFilter: 'blur(20px)',
-      borderLeft: '1px solid rgba(59, 130, 246, 0.2)',
-      boxShadow: '-20px 0 40px rgba(0, 0, 0, 0.3)',
+      borderLeft: '1px solid rgba(102, 194, 255, 0.3)',
+      boxShadow: '-20px 0 40px rgba(128, 204, 255, 0.4)',
       zIndex: 40,
       display: 'flex',
       flexDirection: 'column'
@@ -132,7 +144,7 @@ export function ChatAssistant({ isOpen, onToggle }) {
                 borderRadius: '16px',
                 background: message.sender === "user"
                   ? 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)'
-                  : 'rgba(15, 23, 42, 0.8)',
+                  : 'rgba(0, 46, 77, 0.8)',
                 color: message.sender === "user" ? 'white' : '#e2e8f0',
                 border: message.sender === "user" 
                   ? 'none' 
@@ -157,7 +169,7 @@ export function ChatAssistant({ isOpen, onToggle }) {
                   {message.hasGraph && (
                     <div style={{ marginTop: '16px' }}>
                       <div style={{
-                        background: 'rgba(15, 23, 42, 0.6)',
+                        background: 'rgba(0, 46, 77, 0.6)',
                         borderRadius: '12px',
                         padding: '16px',
                         border: '1px solid rgba(59, 130, 246, 0.2)',
@@ -298,24 +310,26 @@ export function ChatAssistant({ isOpen, onToggle }) {
                           <BarChart3 style={{ width: '12px', height: '12px' }} />
                           Visualize
                         </button>
-                        <button style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          background: 'rgba(16, 185, 129, 0.2)',
-                          border: '1px solid rgba(16, 185, 129, 0.3)',
-                          borderRadius: '8px',
-                          color: '#10b981',
-                          fontSize: '11px',
-                          fontWeight: '500',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px',
-                          transition: 'all 0.3s ease'
-                        }}>
-                          <Download style={{ width: '12px', height: '12px' }} />
-                          Download CSV
+                        <button 
+                          onClick={handleDownload}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            background: user ? 'rgba(16, 185, 129, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+                            border: user ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(107, 114, 128, 0.3)',
+                            borderRadius: '8px',
+                            color: user ? '#10b981' : '#6b7280',
+                            fontSize: '11px',
+                            fontWeight: '500',
+                            cursor: user ? 'pointer' : 'not-allowed',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
+                            transition: 'all 0.3s ease'
+                          }}>
+                          {user ? <Download style={{ width: '12px', height: '12px' }} /> : <Lock style={{ width: '12px', height: '12px' }} />}
+                          {user ? 'Download CSV' : 'Login Required'}
                         </button>
                       </div>
                     </div>
@@ -331,7 +345,7 @@ export function ChatAssistant({ isOpen, onToggle }) {
       <div style={{ 
         padding: '20px', 
         borderTop: '1px solid rgba(59, 130, 246, 0.2)',
-        background: 'rgba(15, 23, 42, 0.8)'
+        background: 'rgba(0, 46, 77, 0.8)'
       }}>
         <div style={{ display: 'flex', gap: '12px' }}>
           <input
@@ -343,7 +357,7 @@ export function ChatAssistant({ isOpen, onToggle }) {
             style={{
               flex: 1,
               padding: '12px 16px',
-              background: 'rgba(15, 23, 42, 0.8)',
+              background: 'rgba(0, 46, 77, 0.8)',
               border: '2px solid rgba(59, 130, 246, 0.2)',
               borderRadius: '12px',
               color: '#e2e8f0',
