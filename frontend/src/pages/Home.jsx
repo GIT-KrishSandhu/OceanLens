@@ -6,10 +6,45 @@ import { DataCards } from "../components/DataCards.jsx"
 import { ChatAssistant } from "../components/ChatAssistant.jsx"
 import { Filter, MessageCircle } from "lucide-react"
 
-export default function Home() {
+export default function Home({ viewMode = "dashboard" }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [chatOpen, setChatOpen] = useState(true)
   const [mapFullscreen, setMapFullscreen] = useState(false)
+  const [chatWidth, setChatWidth] = useState(400)
+
+  // Different view configurations
+  const getViewConfig = () => {
+    switch (viewMode) {
+      case "chatbot":
+        return {
+          showNavigation: true,
+          showSidebar: false,
+          showMainContent: false,
+          showChat: true,
+          chatFullscreen: true
+        }
+      case "dataExplorer":
+        return {
+          showNavigation: true,
+          showSidebar: true,
+          showMainContent: true,
+          showChat: false,
+          chatFullscreen: false,
+          onlyMapAndFilters: true
+        }
+      case "dashboard":
+      default:
+        return {
+          showNavigation: true,
+          showSidebar: true,
+          showMainContent: true,
+          showChat: true,
+          chatFullscreen: false
+        }
+    }
+  }
+
+  const viewConfig = getViewConfig()
 
   return (
     <div style={{ 
@@ -41,117 +76,146 @@ export default function Home() {
         filter: 'blur(1px)'
       }}></div>
 
-      <Navigation />
+      {viewConfig.showNavigation && <Navigation />}
 
-      <div style={{ display: 'flex', position: 'relative', zIndex: 1 }}>
-        {/* Left Sidebar - Filters */}
-        <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+      {/* Chatbot Fullscreen View */}
+      {viewConfig.chatFullscreen && (
+        <div style={{ 
+          position: 'fixed',
+          top: viewConfig.showNavigation ? '84px' : '0',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 10
+        }}>
+          <ChatAssistant isOpen={true} onToggle={() => {}} isFullscreen={true} />
+        </div>
+      )}
 
-        {/* Left Toggle Button - Show Filters (when sidebar is closed) */}
-        {!sidebarOpen && (
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="professional-button gradient-level-4"
-            style={{
-              position: 'fixed',
-              left: '20px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 1000,
-              padding: '12px',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: 'var(--shadow-heavy)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-50%) translateX(5px)';
-              e.target.style.boxShadow = 'var(--shadow-heavy), 0 0 20px rgba(102, 163, 255, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(-50%) translateX(0)';
-              e.target.style.boxShadow = 'var(--shadow-heavy)';
-            }}
-          >
-            <Filter style={{ width: '20px', height: '20px' }} />
-          </button>
-        )}
+      {/* Normal Layout Views */}
+      {!viewConfig.chatFullscreen && (
 
-        {/* Main Content Area */}
-        <main
-          style={{
-            flex: 1,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            marginLeft: sidebarOpen ? '320px' : '0',
-            marginRight: chatOpen ? '400px' : '0',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px'
-          }}
-        >
-          {/* Top Section - Map (Level 2) */}
-          <div className="gradient-level-2" style={{
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            overflow: 'hidden',
-            position: 'relative',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-          }}>
-            <MapView onFullscreenToggle={() => setMapFullscreen(!mapFullscreen)} />
-          </div>
-
-          {/* Bottom Section - Attribute Cards (Level 3) */}
-          {!mapFullscreen && (
-            <div className="gradient-level-3" style={{
-              backdropFilter: 'blur(20px)',
-              borderRadius: '24px',
-              padding: '24px',
-              position: 'relative',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}>
-              <DataCards />
-            </div>
+        <div style={{ display: 'flex', position: 'relative', zIndex: 1 }}>
+          {/* Left Sidebar - Filters */}
+          {viewConfig.showSidebar && (
+            <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
           )}
-        </main>
 
-        {/* Right Sidebar - Chatbot */}
-        <ChatAssistant isOpen={chatOpen} onToggle={() => setChatOpen(!chatOpen)} />
+          {/* Left Toggle Button - Show Filters (when sidebar is closed) */}
+          {viewConfig.showSidebar && !sidebarOpen && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="professional-button gradient-level-4"
+              style={{
+                position: 'fixed',
+                left: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1000,
+                padding: '12px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'var(--shadow-heavy)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-50%) translateX(5px)';
+                e.target.style.boxShadow = 'var(--shadow-heavy), 0 0 20px rgba(102, 163, 255, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(-50%) translateX(0)';
+                e.target.style.boxShadow = 'var(--shadow-heavy)';
+              }}
+            >
+              <Filter style={{ width: '20px', height: '20px' }} />
+            </button>
+          )}
 
-        {/* Right Toggle Button - Show Chat (when chatbot is closed) */}
-        {!chatOpen && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="professional-button gradient-level-4"
-            style={{
-              position: 'fixed',
-              right: '20px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 1000,
-              padding: '12px',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: 'var(--shadow-heavy)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-50%) translateX(-5px)';
-              e.target.style.boxShadow = 'var(--shadow-heavy), 0 0 20px rgba(102, 163, 255, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(-50%) translateX(0)';
-              e.target.style.boxShadow = 'var(--shadow-heavy)';
-            }}
-          >
-            <MessageCircle style={{ width: '20px', height: '20px' }} />
-          </button>
-        )}
-      </div>
+          {/* Main Content Area */}
+          {viewConfig.showMainContent && (
+            <main
+              style={{
+                flex: 1,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                marginLeft: (viewConfig.showSidebar && sidebarOpen) ? '320px' : '0',
+                marginRight: (viewConfig.showChat && chatOpen && !viewConfig.onlyMapAndFilters) ? `${chatWidth}px` : '0',
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px'
+              }}
+            >
+              {/* Top Section - Map (Level 2) */}
+              <div className="gradient-level-2" style={{
+                backdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                overflow: 'hidden',
+                position: 'relative',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}>
+                <MapView onFullscreenToggle={() => setMapFullscreen(!mapFullscreen)} />
+              </div>
+
+              {/* Bottom Section - Attribute Cards (Level 3) - Only show in dashboard mode */}
+              {!mapFullscreen && !viewConfig.onlyMapAndFilters && (
+                <div className="gradient-level-3" style={{
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: '24px',
+                  padding: '24px',
+                  position: 'relative',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}>
+                  <DataCards />
+                </div>
+              )}
+            </main>
+          )}
+
+          {/* Right Sidebar - Chatbot */}
+          {viewConfig.showChat && !viewConfig.onlyMapAndFilters && (
+            <ChatAssistant 
+              isOpen={chatOpen} 
+              onToggle={() => setChatOpen(!chatOpen)}
+              width={chatWidth}
+              onWidthChange={setChatWidth}
+            />
+          )}
+
+          {/* Right Toggle Button - Show Chat (when chatbot is closed) */}
+          {viewConfig.showChat && !viewConfig.onlyMapAndFilters && !chatOpen && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="professional-button gradient-level-4"
+              style={{
+                position: 'fixed',
+                right: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1000,
+                padding: '12px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'var(--shadow-heavy)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-50%) translateX(-5px)';
+                e.target.style.boxShadow = 'var(--shadow-heavy), 0 0 20px rgba(102, 163, 255, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(-50%) translateX(0)';
+                e.target.style.boxShadow = 'var(--shadow-heavy)';
+              }}
+            >
+              <MessageCircle style={{ width: '20px', height: '20px' }} />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Fullscreen Map Overlay */}
       {mapFullscreen && (
