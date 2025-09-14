@@ -6,43 +6,48 @@ import { useNavigate } from "react-router-dom"
 export function Sidebar({ isOpen, onToggle }) {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [region, setRegion] = useState("Arabian Sea")
-  const [dataSource, setDataSource] = useState("INCOIS")
+  const [region, setRegion] = useState("Coral Sea")
+  const [dataSource, setDataSource] = useState("OON")
   const [selectedParameters, setSelectedParameters] = useState([])
-  const [dateRange, setDateRange] = useState({ start: "2020-01-01", end: "2024-01-01" })
+  const [dateRange, setDateRange] = useState({ start: "2025-01-01", end: "2025-01-10" })
   const [showParameterDropdown, setShowParameterDropdown] = useState(false)
   const [showLoginWarning, setShowLoginWarning] = useState(false)
 
-  // Data source configurations
-  const dataSources = {
-    "INCOIS": {
-      name: "Ocean Observation Network (INCOIS)",
-      parameters: [
-        "Chlorophyll-a concentration (mg/m³)",
-        "Particulate Inorganic Carbon (PIC, mg/m³)",
-        "Diffuse Attenuation Coefficient at 490 nm (Kd_490, m⁻¹)",
-        "Particulate Organic Carbon (POC, mg/m³)",
-        "Aerosol Optical Thickness at 862 nm (AOT_862, dimensionless)",
-        "Sea Surface Temperature (SST, °C)"
-      ]
-    },
-    "Ifremer": {
-      name: "Ifremer Database",
-      parameters: [
-        "Temperature Mean (°C)",
-        "Temperature Median (°C)",
-        "Temperature Std Dev (°C)",
-        "Salinity Mean (PSU)",
-        "Salinity Max (PSU)",
-        "Pressure Max (dbar)"
-      ]
-    }
+  // Data source configurations - Updated with exact CSV column names
+const dataSources = {
+  OON: {
+    name: "Ocean Observation Network (INCOIS)",
+    hasDate: false,
+    parameters: [
+      { key: "chlor_a", label: "Chlorophyll-a concentration (mg/m³)" },
+      { key: "pic", label: "Particulate Inorganic Carbon (PIC, mg/m³)" },
+      { key: "Kd_490", label: "Diffuse Attenuation Coefficient at 490 nm (m⁻¹)" },
+      { key: "poc", label: "Particulate Organic Carbon (POC, mg/m³)" },
+      { key: "aot_862", label: "Aerosol Optical Thickness at 862 nm (dimensionless)" },
+      { key: "sst", label: "Sea Surface Temperature (°C)" }
+    ]
+  },
+  Ifremer: {
+    name: "Ifremer Database",
+    hasDate: true,
+    parameters: [
+      { key: "float_id", label: "Float ID" },
+      { key: "temp_mean", label: "Temperature Mean (°C)" },
+      { key: "temp_median", label: "Temperature Median (°C)" },
+      { key: "temp_std_dev", label: "Temperature Std Dev (°C)" },
+      { key: "salinity_mean", label: "Salinity Mean (PSU)" },
+      { key: "salinity_max", label: "Salinity Max (PSU)" },
+      { key: "pressure_max", label: "Pressure Max (dbar)" }
+    ]
   }
+}
 
-  // Indian Ocean sub-regions
-  const indianOceanRegions = [
+
+  // Ocean regions for both datasets
+  const oceanRegions = [
+    // Indian Ocean regions (for Ifremer data)
     "Arabian Sea",
-    "Bay of Bengal",
+    "Bay of Bengal", 
     "Andaman Sea",
     "Laccadive Sea",
     "Somali Sea",
@@ -52,7 +57,11 @@ export function Sidebar({ isOpen, onToggle }) {
     "Central Indian Basin",
     "Wharton Basin",
     "Perth Basin",
-    "Great Australian Bight"
+    "Great Australian Bight",
+    // Pacific Ocean regions (for OON data)
+    "Coral Sea",
+    "Tasman Sea", 
+    "South Pacific"
   ]
 
   if (!isOpen) return null
@@ -60,14 +69,87 @@ export function Sidebar({ isOpen, onToggle }) {
   const handleApplyFilters = () => {
     console.log("Applied Filters:", { region, dataSource, selectedParameters, dateRange })
   }
+const buildQueryParams = () => {
+  const params = {}
+  if (region) params.region = region
+  if (dataSource) params.data_source = dataSource
+  
+  // Only add date range for Ifremer data
+  if (dataSources[dataSource].hasDate) {
+    if (dateRange?.start) params.start_date = dateRange.start
+    if (dateRange?.end) params.end_date = dateRange.end
+  }
 
-  const handleExportData = () => {
-    if (!user) {
-      navigate('/login')
+  if (selectedParameters && selectedParameters.length > 0) {
+    params.parameters = selectedParameters.join(",")
+  }
+  return params
+}
+const handleExportData = async () => {
+  // Temporarily allow export without login for testing
+  // if (!user) {
+  //   navigate('/login')
+  //   return
+  // }
+
+  const params = buildQueryParams()
+  const query = new URLSearchParams(params).toString()
+
+  // Vite env var convention: VITE_API_URL (see .env below)
+  const API_BASE ="http://127.0.0.1:8000"
+  const endpoint = `${API_BASE}/data_filters/download/?${query}`
+
+  console.log("Export request:", { params, query, endpoint })
+
+  try {
+    const token = user?.token || user?.accessToken || null
+    const headers = token ? { "Authorization": `Bearer ${token}` } : {}
+
+    console.log("Making request to:", endpoint)
+    const res = await fetch(endpoint, { method: "GET", headers })
+    
+    console.log("Response status:", res.status, res.statusText)
+    console.log("Response headers:", Object.fromEntries(res.headers.entries()))
+    
+    if (!res.ok) {
+      const text = await res.text().catch(()=>null)
+      console.error("Export failed:", res.status, text)
+      alert(`Export failed: ${res.status} ${text ? "— " + text : ""}`)
       return
     }
-    console.log("Exporting data with filters:", { region, dataSource, selectedParameters, dateRange })
+
+    const blob = await res.blob()
+    console.log("Blob size:", blob.size)
+    
+    if (blob.size === 0) {
+      alert("No data found for the selected filters. Please try different parameters.")
+      return
+    }
+
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+
+    // read filename from header if present
+    const cd = res.headers.get("Content-Disposition")
+    let filename = "filtered_data.csv"
+    if (cd) {
+      const m = /filename="?(.+?)"?($|;)/.exec(cd)
+      if (m) filename = m[1]
+    }
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+    
+    console.log("Export successful:", filename)
+  } catch (err) {
+    console.error("Export error:", err)
+    alert(`Export failed: ${err.message}. Please check if the backend server is running on port 8000.`)
   }
+}
+
 
   const addParameter = (parameter) => {
     if (!selectedParameters.includes(parameter)) {
@@ -194,7 +276,7 @@ export function Sidebar({ isOpen, onToggle }) {
                 boxShadow: '0 4px 16px rgba(59, 130, 246, 0.2)'
               }}
             >
-              <option value="INCOIS" style={{ background: 'var(--blue-90)' }}>Ocean Observation Network (INCOIS)</option>
+              <option value="OON" style={{ background: 'var(--blue-90)' }}>Ocean Observation Network (INCOIS)</option>
               <option value="Ifremer" style={{ background: 'var(--blue-90)' }}>Ifremer Database</option>
             </select>
             <ChevronDown style={{ 
@@ -214,7 +296,7 @@ export function Sidebar({ isOpen, onToggle }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500', color: 'var(--blue-20)' }}>
             <MapPin style={{ width: '16px', height: '16px', color: 'var(--blue-30)' }} />
-            <span>Indian Ocean Regions</span>
+            <span>Ocean Regions</span>
           </label>
           <div style={{ position: 'relative' }}>
             <select
@@ -235,7 +317,7 @@ export function Sidebar({ isOpen, onToggle }) {
                 boxShadow: '0 4px 16px rgba(59, 130, 246, 0.2)'
               }}
             >
-              {indianOceanRegions.map(regionName => (
+              {oceanRegions.map(regionName => (
                 <option key={regionName} value={regionName} style={{ background: 'var(--blue-90)' }}>
                   {regionName}
                 </option>
@@ -254,7 +336,8 @@ export function Sidebar({ isOpen, onToggle }) {
           </div>
         </div>
 
-        {/* Date Range - Cool Interactive UI */}
+        {/* Date Range - Cool Interactive UI - Only for Ifremer data */}
+        {dataSources[dataSource].hasDate && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500', color: 'var(--blue-20)' }}>
             <Calendar style={{ width: '16px', height: '16px', color: 'var(--blue-30)' }} />
@@ -393,7 +476,7 @@ export function Sidebar({ isOpen, onToggle }) {
                   type="date"
                   value={dateRange.end}
                   min={dateRange.start}
-                  max="2024-12-31"
+                  max="2025-12-31"
                   onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
                   style={{
                     width: '100%',
@@ -447,7 +530,8 @@ export function Sidebar({ isOpen, onToggle }) {
               </div>
             </div>
           </div>
-        </div>        
+        </div>
+        )}        
 {/* Ocean Parameters */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500', color: 'var(--blue-20)' }}>
@@ -506,22 +590,22 @@ export function Sidebar({ isOpen, onToggle }) {
                 {dataSources[dataSource].parameters.map((parameter, index) => (
                   <button
                     key={index}
-                    onClick={() => addParameter(parameter)}
-                    disabled={selectedParameters.includes(parameter)}
+                    onClick={() => addParameter(parameter.key)}
+                    disabled={selectedParameters.includes(parameter.key)}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      background: selectedParameters.includes(parameter) ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                      background: selectedParameters.includes(parameter.key) ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
                       border: 'none',
                       borderBottom: index < dataSources[dataSource].parameters.length - 1 ? '1px solid rgba(59, 130, 246, 0.1)' : 'none',
-                      color: selectedParameters.includes(parameter) ? '#94a3b8' : '#e2e8f0',
+                      color: selectedParameters.includes(parameter.key) ? '#94a3b8' : '#e2e8f0',
                       fontSize: '13px',
-                      cursor: selectedParameters.includes(parameter) ? 'not-allowed' : 'pointer',
+                      cursor: selectedParameters.includes(parameter.key) ? 'not-allowed' : 'pointer',
                       textAlign: 'left',
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    {parameter}
+                    {parameter.label}
                   </button>
                 ))}
               </div>
@@ -532,41 +616,44 @@ export function Sidebar({ isOpen, onToggle }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>Selected Parameters:</span>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {selectedParameters.map((parameter, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '8px 12px',
-                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      color: '#e2e8f0'
-                    }}
-                  >
-                    <span style={{ flex: 1, marginRight: '8px' }}>{parameter}</span>
-                    <button
-                      onClick={() => removeParameter(parameter)}
+                {selectedParameters.map((parameterKey, index) => {
+                  const parameter = dataSources[dataSource].parameters.find(p => p.key === parameterKey);
+                  return (
+                    <div
+                      key={index}
                       style={{
-                        padding: '4px',
-                        background: 'rgba(239, 68, 68, 0.2)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        borderRadius: '4px',
-                        color: '#ef4444',
-                        cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.3s ease'
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        color: '#e2e8f0'
                       }}
                     >
-                      <X style={{ width: '12px', height: '12px' }} />
-                    </button>
-                  </div>
-                ))}
+                      <span style={{ flex: 1, marginRight: '8px' }}>{parameter ? parameter.label : parameterKey}</span>
+                      <button
+                        onClick={() => removeParameter(parameterKey)}
+                        style={{
+                          padding: '4px',
+                          background: 'rgba(239, 68, 68, 0.2)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '4px',
+                          color: '#ef4444',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <X style={{ width: '12px', height: '12px' }} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
