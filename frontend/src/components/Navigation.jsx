@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { NotificationBell } from "./NotificationSystem";
+import { NotificationPreferences } from "./NotificationPreferences";
 import {
   Home,
   Database,
@@ -23,11 +25,12 @@ export function Navigation() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showNotificationPreferences, setShowNotificationPreferences] = useState(false);
 
   const navItems = [
     { name: "Dashboard", icon: Home, path: "/" },
     { name: "Data Explorer", icon: Database, path: "/data" },
-    { name: "Analytics", icon: BarChart3, path: "/analytics" },
+    { name: "Chatbot", icon: MessageCircle, path: "/chat" },
   ];
 
   const handleLogout = () => {
@@ -55,8 +58,9 @@ export function Navigation() {
             justifyContent: "space-between",
           }}
         >
-          {/* Logo and Brand */}
-          <div>
+          {/* Logo and Navigation Items */}
+          <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            {/* Logo */}
             <Link to="/">
               <img
                 src="/unnamed-removebg-preview.png"
@@ -64,93 +68,62 @@ export function Navigation() {
                 style={{ height: "80px", width: "auto" }}
               />
             </Link>
-          </div>
 
-          {/* Search Bar */}
-          <div
-            style={{
-              display: "flex",
-              flex: 1,
-              maxWidth: "500px",
-              margin: "0 32px",
-            }}
-          >
-            <div style={{ position: "relative", width: "100%" }}>
-              <Search
-                style={{
-                  position: "absolute",
-                  left: "16px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "var(--blue-30)",
-                  width: "20px",
-                  height: "20px",
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Search ocean data, floats, or locations..."
-                className="glass-effect"
-                style={{
-                  width: "100%",
-                  padding: "8px 16px 8px 48px",
-                  borderRadius: "16px",
-                  color: "var(--blue-15)",
-                  fontSize: "14px",
-                  outline: "none",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "var(--blue-50)";
-                  e.target.style.boxShadow = "0 0 0 4px rgba(0, 102, 255, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "var(--blue-70)";
-                  e.target.style.boxShadow = "var(--shadow-medium)";
-                }}
-              />
-            </div>
-          </div>
+            {/* Navigation Items */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {navItems.map((item) => {
+              // mark all protected routes
+              const isProtected =
+                item.name === "Data Explorer" ||
+                item.name === "Chatbot";
 
-          {/* Navigation Items */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {navItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => navigate(item.path)}
-                className={
-                  location.pathname === item.path
-                    ? "professional-button gradient-level-4"
-                    : "glass-effect"
+              const handleNavClick = () => {
+                if (isProtected && !user) {
+                  navigate("/login"); // redirect if not logged in
+                } else {
+                  navigate(item.path);
                 }
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "6px 12px",
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                }}
-                onMouseEnter={(e) => {
-                  if (location.pathname !== item.path) {
-                    e.target.style.background = "var(--glass-medium)";
-                    e.target.style.transform = "translateY(-1px)";
+              };
+
+              return (
+                <button
+                  key={item.name}
+                  onClick={handleNavClick}
+                  className={
+                    location.pathname === item.path
+                      ? "professional-button gradient-level-4"
+                      : "glass-effect"
                   }
-                }}
-                onMouseLeave={(e) => {
-                  if (location.pathname !== item.path) {
-                    e.target.style.background = "var(--glass-light)";
-                    e.target.style.transform = "translateY(0)";
-                  }
-                }}
-              >
-                <item.icon style={{ width: "18px", height: "18px" }} />
-                <span>{item.name}</span>
-              </button>
-            ))}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 12px",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (location.pathname !== item.path) {
+                      e.target.style.background = "var(--glass-medium)";
+                      e.target.style.transform = "translateY(-1px)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (location.pathname !== item.path) {
+                      e.target.style.background = "var(--glass-light)";
+                      e.target.style.transform = "translateY(0)";
+                    }
+                  }}
+                >
+                  <item.icon style={{ width: "18px", height: "18px" }} />
+                  <span>{item.name}</span>
+                </button>
+              );
+            })}
+            </div>
           </div>
 
           {/* Right Side Actions */}
@@ -162,18 +135,7 @@ export function Navigation() {
               marginLeft: "24px",
             }}
           >
-            <button
-              className="glass-effect"
-              style={{
-                padding: "8px",
-                color: "var(--blue-25)",
-                borderRadius: "12px",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-            >
-              <Bell style={{ width: "20px", height: "20px" }} />
-            </button>
+            <NotificationBell />
 
             <div
               style={{
@@ -262,6 +224,7 @@ export function Navigation() {
                       <span>Downloads</span>
                     </button>
                     <button
+                      onClick={() => setShowNotificationPreferences(true)}
                       style={{
                         width: "100%",
                         display: "flex",
@@ -344,7 +307,7 @@ export function Navigation() {
                   <span>Login</span>
                 </button>
                 <button
-                  onClick={() => navigate("/signup")}
+                  onClick={() => navigate("/login")}
                   className="professional-button gradient-level-5"
                   style={{
                     display: "flex",
@@ -365,6 +328,12 @@ export function Navigation() {
           </div>
         </div>
       </div>
+      
+      {/* Notification Preferences Modal */}
+      <NotificationPreferences 
+        isOpen={showNotificationPreferences}
+        onClose={() => setShowNotificationPreferences(false)}
+      />
     </nav>
   );
 }

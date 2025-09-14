@@ -48,3 +48,163 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Notification System Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Notification Bell Animation */
+@keyframes bellRing {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(-10deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(10deg);
+  }
+}
+
+.notification-bell-ring {
+  animation: bellRing 0.5s ease-in-out;
+}
+
+/* Notification Badge Animation */
+@keyframes badgeBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.notification-badge-bounce {
+  animation: badgeBounce 0.3s ease-in-out;
+}
+
+/* Alert Banner Animations */
+.alert-banner-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.alert-banner-exit {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+/* Dropdown Animations */
+.notification-dropdown-enter {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.notification-dropdown-exit {
+  animation: fadeOut 0.2s ease-in;
+}
+
+/* Tooltip Animations */
+.tooltip-enter {
+  animation: fadeIn 0.15s ease-out;
+}
+
+.tooltip-exit {
+  animation: fadeOut 0.15s ease-in;
+}
+
+/* Modal Animations */
+.modal-backdrop {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Notification Item Animations */
+.notification-item-enter {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.notification-item-exit {
+  animation: fadeOut 0.2s ease-in;
+}
+
+/* Data Quality Indicator Pulse */
+.data-quality-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles for accessibility */
+.notification-bell:focus,
+.notification-item:focus,
+.notification-preference-item:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .notification-bell,
+  .notification-item,
+  .alert-banner {
+    border: 2px solid currentColor;
+  }
+}

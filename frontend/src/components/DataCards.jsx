@@ -1,318 +1,332 @@
-import { AlertTriangle, TrendingUp, Waves, Thermometer, Droplets, Gauge, Activity, CheckCircle, BarChart3, Eye, Zap, ArrowUp, ArrowDown, Download, Lock } from "lucide-react"
-import { useAuth } from "../contexts/AuthContext"
+import { useState, useMemo, useEffect } from "react"
+import {
+  AlertTriangle, Waves, Thermometer, Droplets, Gauge, Activity,
+  CheckCircle, BarChart3, Eye, Zap, ArrowUp, ArrowDown, Download,
+  Filter, Search, SortAsc, SortDesc, Grid, List, MoreHorizontal
+} from "lucide-react"
+
+import { useNotifications } from "../contexts/NotificationContext"
+import { DataQualityTooltip } from "./NotificationSystem"
+import {
+  LineChart, Line, ResponsiveContainer
+} from "recharts"
 
 export function DataCards() {
-  const { user } = useAuth();
-  
-  const handleExport = (cardTitle) => {
-    if (!user) {
-      alert('Please login to export data');
-      return;
-    }
-    console.log(`Exporting ${cardTitle} data...`);
-    // Here you would implement actual export functionality
-  };
+  const { checkThresholds, checkDataQuality, addNotification } = useNotifications()
 
-  const dataCards = [
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "all",
+    quality: "all",
+    showAlerts: false,
+  })
+
+  const [sorting, setSorting] = useState({
+    field: "name",
+    order: "asc",
+  })
+
+  const [viewMode, setViewMode] = useState("grid")
+  const [selectedAttributes, setSelectedAttributes] = useState([])
+  const [showFilters, setShowFilters] = useState(false)
+
+  // sample dataset
+  const dataCards = useMemo(() => [
     {
+      id: "temperature",
       title: "Temperature",
-      subtitle: "Ocean Surface",
+      subtitle: "Water Heat Level",
       icon: Thermometer,
-      iconColor: "#f97316",
-      bgGradient: "linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(251, 146, 60, 0.1) 100%)",
-      borderColor: "rgba(249, 115, 22, 0.3)",
-      data: "892 profiles",
-      status: "warning",
-      statusText: "2 warnings",
-      statusIcon: AlertTriangle,
-      statusColor: "#ea580c",
-      value: "18.5°C",
-      change: "+0.3°C",
-      changeType: "positive",
-      trend: [65, 72, 68, 75, 80, 78, 85, 82, 88, 90, 87, 92]
+      iconColor: "#FF6B6B",
+      category: "physical",
+      value: 23.5,
+      unit: "°C",
+      change: +0.3,
+      dataQuality: "high",
+      trend: [23.2, 23.3, 23.4, 23.5],
+      lastUpdated: "5 mins ago",
+      status: "normal",
+      description: "Sea surface temperature measurement",
     },
     {
+      id: "salinity",
       title: "Salinity",
-      subtitle: "Salt Content",
+      subtitle: "Salt Concentration",
       icon: Droplets,
-      iconColor: "#3b82f6",
-      bgGradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(96, 165, 250, 0.1) 100%)",
-      borderColor: "rgba(59, 130, 246, 0.3)",
-      data: "1,156 measurements",
-      status: "success",
-      statusText: "Normal",
-      statusIcon: CheckCircle,
-      statusColor: "#059669",
-      value: "35.2 PSU",
-      change: "-0.1",
-      changeType: "negative",
-      trend: [45, 48, 52, 49, 55, 58, 54, 57, 60, 62, 59, 64]
-    },
-    {
-      title: "Pressure",
-      subtitle: "Water Depth",
-      icon: Gauge,
-      iconColor: "#8b5cf6",
-      bgGradient: "linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(167, 139, 250, 0.1) 100%)",
-      borderColor: "rgba(139, 92, 246, 0.3)",
-      data: "743 readings",
-      status: "success",
-      statusText: "Optimal",
-      statusIcon: CheckCircle,
-      statusColor: "#059669",
-      value: "1013.2 hPa",
-      change: "+2.1",
-      changeType: "positive",
-      trend: [30, 35, 32, 38, 42, 40, 45, 48, 50, 52, 49, 55]
-    },
-    {
-      title: "Oxygen",
-      subtitle: "Dissolved O₂",
-      icon: Activity,
-      iconColor: "#10b981",
-      bgGradient: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(52, 211, 153, 0.1) 100%)",
-      borderColor: "rgba(16, 185, 129, 0.3)",
-      data: "2,341 samples",
-      status: "success",
-      statusText: "Healthy",
-      statusIcon: CheckCircle,
-      statusColor: "#059669",
-      value: "8.2 mg/L",
-      change: "+0.1",
-      changeType: "positive",
-      trend: [55, 58, 62, 59, 65, 68, 64, 67, 70, 72, 69, 74]
-    },
-    {
-      title: "Chlorophyll",
-      subtitle: "Biomass Index",
-      icon: Waves,
-      iconColor: "#06b6d4",
-      bgGradient: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)",
-      borderColor: "rgba(6, 182, 212, 0.3)",
-      data: "1,847 samples",
-      status: "success",
-      statusText: "Active",
-      statusIcon: CheckCircle,
-      statusColor: "#059669",
-      value: "0.45 mg/m³",
-      change: "+0.02",
-      changeType: "positive",
-      trend: [25, 28, 32, 29, 35, 38, 34, 37, 40, 42, 39, 44]
-    },
-    {
-      title: "Turbidity",
-      subtitle: "Water Clarity",
-      icon: BarChart3,
-      iconColor: "#f59e0b",
-      bgGradient: "linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%)",
-      borderColor: "rgba(245, 158, 11, 0.3)",
-      data: "1,203 readings",
+      iconColor: "#4ECDC4",
+      category: "chemical",
+      value: 35.1,
+      unit: "PSU",
+      change: -0.2,
+      dataQuality: "medium",
+      trend: [35.3, 35.2, 35.1, 35.1],
+      lastUpdated: "10 mins ago",
       status: "warning",
-      statusText: "High",
-      statusIcon: AlertTriangle,
-      statusColor: "#d97706",
-      value: "12.3 NTU",
-      change: "+1.2",
-      changeType: "positive",
-      trend: [70, 75, 78, 72, 80, 85, 82, 88, 90, 92, 89, 95]
-    }
-  ]
+      description: "Seawater salinity concentration",
+    },
+    {
+      id: "pressure",
+      title: "Pressure",
+      subtitle: "Water Column Pressure",
+      icon: Gauge,
+      iconColor: "#45B7D1",
+      category: "physical",
+      value: 1013.2,
+      unit: "hPa",
+      change: +1.5,
+      dataQuality: "high",
+      trend: [1012, 1012.5, 1013, 1013.2],
+      lastUpdated: "2 mins ago",
+      status: "normal",
+      description: "Hydrostatic pressure measurement",
+    },
+    {
+      id: "oxygen",
+      title: "Dissolved Oxygen",
+      subtitle: "O2 Concentration",
+      icon: Activity,
+      iconColor: "#96CEB4",
+      category: "chemical",
+      value: 6.8,
+      unit: "mg/L",
+      change: -0.1,
+      dataQuality: "low",
+      trend: [7.0, 6.9, 6.8, 6.8],
+      lastUpdated: "15 mins ago",
+      status: "critical",
+      description: "Dissolved oxygen concentration",
+    },
+  ], [])
+
+  // filtering & sorting
+  const filteredAndSortedCards = useMemo(() => {
+    let filtered = dataCards.filter((card) => {
+      const matchesSearch =
+        card.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        card.subtitle.toLowerCase().includes(filters.search.toLowerCase())
+      const matchesCategory = filters.category === "all" || card.category === filters.category
+      const matchesQuality = filters.quality === "all" || card.dataQuality === filters.quality
+      const matchesAlerts = !filters.showAlerts || card.status !== "normal"
+      return matchesSearch && matchesCategory && matchesQuality && matchesAlerts
+    })
+
+    filtered.sort((a, b) => {
+      const order = sorting.order === "asc" ? 1 : -1
+      switch (sorting.field) {
+        case "name":
+          return order * a.title.localeCompare(b.title)
+        case "value":
+          return order * (a.value - b.value)
+        case "change":
+          return order * (a.change - b.change)
+        case "quality":
+          return order * a.dataQuality.localeCompare(b.dataQuality)
+        case "updated":
+          return order * a.lastUpdated.localeCompare(b.lastUpdated)
+        default:
+          return 0
+      }
+    })
+
+    return filtered
+  }, [dataCards, filters, sorting])
+
+  // threshold & quality checks
+  useEffect(() => {
+    dataCards.forEach((card) => {
+      checkThresholds(card)
+      checkDataQuality(card)
+    })
+  }, [dataCards, checkThresholds, checkDataQuality])
+
+  // simulated updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomCard = dataCards[Math.floor(Math.random() * dataCards.length)]
+      addNotification({
+        type: "info",
+        title: "Data Update",
+        message: `${randomCard.title} measurements updated`,
+      })
+    }, 45000)
+    return () => clearInterval(interval)
+  }, [dataCards, addNotification])
+
+  const handleExport = (id) => {
+    addNotification({
+      type: "success",
+      title: "Export Complete",
+      message: `${id} data exported successfully`,
+    })
+  }
+
+  const toggleSelection = (id) => {
+    setSelectedAttributes((prev) =>
+      prev.includes(id) ? prev.filter((attr) => attr !== id) : [...prev, id]
+    )
+  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="gradient-level-4" style={{ 
-            padding: '12px', 
-            borderRadius: '16px'
-          }}>
-            <BarChart3 style={{ width: '24px', height: '24px', color: 'var(--blue-15)' }} />
-          </div>
-          <div>
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: '700', 
-              color: 'var(--blue-15)',
-              margin: 0,
-              textShadow: '0 0 20px rgba(102, 163, 255, 0.5)'
-            }}>Argo Attributes</h2>
-            <p style={{ fontSize: '14px', color: 'var(--blue-20)', margin: '4px 0 0 0' }}>Real-time oceanographic measurements & analysis</p>
-          </div>
+    <div style={{ padding: "24px" }}>
+      {/* header */}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
+        <div>
+          <h2 style={{ fontSize: "24px", fontWeight: "bold" }}>Ocean Attributes</h2>
+          <p style={{ color: "#666" }}>Scientific measurements and parameters</p>
         </div>
-        <button className="glass-effect" style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '8px', 
-          padding: '12px 20px', 
-          fontSize: '14px', 
-          fontWeight: '500', 
-          borderRadius: '12px', 
-          cursor: 'pointer',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.background = 'var(--glass-medium)';
-          e.target.style.transform = 'translateY(-1px)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background = 'var(--glass-light)';
-          e.target.style.transform = 'translateY(0)';
-        }}
-        >
-          <Eye style={{ width: '16px', height: '16px' }} />
-          <span>View All</span>
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button onClick={() => setViewMode(viewMode === "grid" ? "compact" : "grid")}>
+            {viewMode === "grid" ? <List size={20} /> : <Grid size={20} />}
+          </button>
+          <button onClick={() => setShowFilters(!showFilters)}>
+            <Filter size={20} />
+          </button>
+        </div>
       </div>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-        {dataCards.map((card, index) => (
-          <div key={index} style={{ 
-            background: '#000000',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '20px', 
-            padding: '24px', 
-            border: `2px solid var(--blue-70)`,
-            boxShadow: 'var(--shadow-heavy), inset 0 1px 0 rgba(102, 163, 255, 0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-8px)';
-            e.target.style.boxShadow = 'var(--shadow-heavy), 0 0 30px rgba(102, 163, 255, 0.4), inset 0 1px 0 rgba(102, 163, 255, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = 'var(--shadow-heavy), inset 0 1px 0 rgba(102, 163, 255, 0.1)';
-          }}
-          >
-            {/* Background Gradient */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              background: card.bgGradient,
-              borderRadius: '20px 20px 0 0'
-            }}></div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', zIndex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ 
-                    padding: '12px', 
-                    background: card.bgGradient,
-                    borderRadius: '16px',
-                    border: `1px solid ${card.borderColor}`,
-                    boxShadow: `0 8px 32px ${card.iconColor}20`
-                  }}>
-                    <card.icon style={{ width: '24px', height: '24px', color: card.iconColor }} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--blue-15)', margin: 0 }}>{card.title}</h3>
-                    <p style={{ fontSize: '12px', color: 'var(--blue-25)', margin: '2px 0 0 0' }}>{card.subtitle}</p>
-                  </div>
-                </div>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '6px', 
-                  padding: '6px 12px', 
-                  borderRadius: '20px', 
-                  fontSize: '11px', 
-                  fontWeight: '600', 
-                  background: card.status === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                  color: card.status === 'success' ? '#10b981' : '#f59e0b',
-                  border: `1px solid ${card.status === 'success' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
-                }}>
-                  <card.statusIcon style={{ width: '12px', height: '12px' }} />
-                  <span>{card.statusText}</span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                <span style={{ fontSize: '32px', fontWeight: '800', color: 'var(--blue-15)' }}>{card.value}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '8px', background: card.changeType === 'positive' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-                  {card.changeType === 'positive' ? 
-                    <ArrowUp style={{ width: '12px', height: '12px', color: '#10b981' }} /> : 
-                    <ArrowDown style={{ width: '12px', height: '12px', color: '#ef4444' }} />
-                  }
-                  <span style={{ fontSize: '12px', fontWeight: '600', color: card.changeType === 'positive' ? '#10b981' : '#ef4444' }}>
-                    {card.change}
-                  </span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '12px', color: 'var(--blue-25)' }}>{card.data}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Zap style={{ width: '12px', height: '12px', color: 'var(--blue-30)' }} />
-                  <span style={{ fontSize: '11px', color: 'var(--blue-30)', fontWeight: '500' }}>Live</span>
-                </div>
-              </div>
-              
-              {/* Enhanced Mini Chart */}
-              <div style={{ 
-                height: '40px', 
-                background: 'var(--blue-90)',
-                borderRadius: '12px', 
-                display: 'flex', 
-                alignItems: 'end', 
-                gap: '2px', 
-                padding: '8px',
-                border: '1px solid var(--blue-70)'
-              }}>
-                {card.trend.map((value, i) => (
-                  <div
-                    key={i}
-                    style={{ 
-                      flex: 1, 
-                      borderRadius: '2px', 
-                      background: `linear-gradient(to top, ${card.iconColor}60, ${card.iconColor}40)`,
-                      height: `${value}%`,
-                      boxShadow: `0 0 8px ${card.iconColor}40`,
-                      transition: 'all 0.3s ease'
-                    }}
-                  ></div>
-                ))}
-              </div>
 
-              {/* Export Button */}
-              <button
-                onClick={() => handleExport(card.title)}
+      {/* filters */}
+      {showFilters && (
+        <div style={{ display: "grid", gap: "12px", marginBottom: "24px" }}>
+          <input
+            type="text"
+            placeholder="Search attributes..."
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+          />
+          <select
+            value={filters.category}
+            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+          >
+            <option value="all">All Categories</option>
+            <option value="physical">Physical</option>
+            <option value="chemical">Chemical</option>
+            <option value="biological">Biological</option>
+          </select>
+          <select
+            value={filters.quality}
+            onChange={(e) => setFilters({ ...filters, quality: e.target.value })}
+          >
+            <option value="all">All Quality</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select
+            value={sorting.field}
+            onChange={(e) => setSorting({ ...sorting, field: e.target.value })}
+          >
+            <option value="name">Sort by Name</option>
+            <option value="value">Sort by Value</option>
+            <option value="change">Sort by Change</option>
+            <option value="quality">Sort by Quality</option>
+            <option value="updated">Sort by Updated</option>
+          </select>
+          <button
+            onClick={() => setSorting({ ...sorting, order: sorting.order === "asc" ? "desc" : "asc" })}
+          >
+            {sorting.order === "asc" ? <SortAsc size={20} /> : <SortDesc size={20} />}
+          </button>
+          <label>
+            <input
+              type="checkbox"
+              checked={filters.showAlerts}
+              onChange={(e) => setFilters({ ...filters, showAlerts: e.target.checked })}
+            />
+            Show only alerts
+          </label>
+        </div>
+      )}
+
+      {/* cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: viewMode === "grid" ? "repeat(auto-fill, minmax(280px, 1fr))" : "1fr",
+          gap: "16px",
+        }}
+      >
+        {filteredAndSortedCards.map((card) => (
+          <div
+            key={card.id}
+            onClick={() => toggleSelection(card.id)}
+            style={{
+              position: "relative",
+              padding: "20px",
+              borderRadius: "16px",
+              background: "#fff",
+              boxShadow: selectedAttributes.includes(card.id)
+                ? `0 0 12px ${card.iconColor}`
+                : "0 2px 8px rgba(0,0,0,0.1)",
+              border: selectedAttributes.includes(card.id)
+                ? `2px solid ${card.iconColor}`
+                : "1px solid #eee",
+              transition: "all 0.3s ease",
+              cursor: "pointer",
+            }}
+          >
+            {/* icon */}
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+              <card.icon size={24} color={card.iconColor} />
+              <div style={{ marginLeft: "8px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "bold" }}>{card.title}</h3>
+                <p style={{ fontSize: "12px", color: "#666" }}>{card.subtitle}</p>
+              </div>
+            </div>
+
+            {/* value */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "22px", fontWeight: "bold" }}>
+                {card.value} {card.unit}
+              </span>
+              {card.change >= 0 ? (
+                <ArrowUp size={18} color="green" />
+              ) : (
+                <ArrowDown size={18} color="red" />
+              )}
+              <span style={{ color: card.change >= 0 ? "green" : "red" }}>{card.change}</span>
+              <DataQualityTooltip quality={card.dataQuality} />
+            </div>
+
+            {/* sparkline */}
+            <div style={{ width: "100%", height: "60px", marginBottom: "8px" }}>
+              <ResponsiveContainer>
+                <LineChart data={card.trend.map((v, i) => ({ x: i, y: v }))}>
+                  <Line type="monotone" dataKey="y" stroke={card.iconColor} strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* status + export */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span
                 style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  background: user ? 'rgba(16, 185, 129, 0.2)' : 'rgba(107, 114, 128, 0.2)',
-                  border: user ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(107, 114, 128, 0.3)',
-                  borderRadius: '8px',
-                  color: user ? '#10b981' : '#6b7280',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  cursor: user ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  transition: 'all 0.3s ease',
-                  marginTop: '12px'
-                }}
-                onMouseEnter={(e) => {
-                  if (user) {
-                    e.target.style.background = 'rgba(16, 185, 129, 0.3)';
-                    e.target.style.borderColor = '#10b981';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (user) {
-                    e.target.style.background = 'rgba(16, 185, 129, 0.2)';
-                    e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-                  }
+                  fontSize: "12px",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  background:
+                    card.status === "critical"
+                      ? "#ffe0e0"
+                      : card.status === "warning"
+                      ? "#fff3cd"
+                      : "#e0f7e0",
+                  color:
+                    card.status === "critical"
+                      ? "#b71c1c"
+                      : card.status === "warning"
+                      ? "#856404"
+                      : "#2e7d32",
                 }}
               >
-                {user ? <Download style={{ width: '14px', height: '14px' }} /> : <Lock style={{ width: '14px', height: '14px' }} />}
-                <span>{user ? 'Export Data' : 'Login Required'}</span>
+                {card.status}
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleExport(card.title)
+                }}
+                style={{ background: "transparent", border: "none", cursor: "pointer" }}
+              >
+                <Download size={18} />
               </button>
             </div>
           </div>
