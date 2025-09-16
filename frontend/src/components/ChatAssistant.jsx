@@ -1,29 +1,41 @@
 import { useState, useRef, useCallback, useEffect } from "react"
-import { MessageCircle, Send, X, Bot, User, BarChart3, Download, RefreshCw, Zap, Lock, GripVertical, Waves, Sparkles, ArrowRight, Globe, TrendingUp, Database } from "lucide-react"
+import { MessageCircle, Send, X, Bot, User, BarChart3, Download, RefreshCw, Zap, Lock, GripVertical, Waves, Sparkles, ArrowRight, Globe, TrendingUp, Database, Loader2 } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
+import axios from "axios"
 
 export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 400, onWidthChange }) {
   const { user } = useAuth();
   const [isResizing, setIsResizing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPlot, setCurrentPlot] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('unknown');
   const resizeRef = useRef(null);
 
-  const [messages, setMessages] = useState(
-    user ? [
-      {
-        id: 1,
-        text: "Show me salinity profiles near equator in 2019",
-        sender: "user",
-        timestamp: "2:34 PM",
-        hasGraph: false
-      },
-      {
-        id: 2,
-        text: "Here are the salinity profiles near the equator in 2019",
-        sender: "bot",
-        timestamp: "2:35 PM",
-        hasGraph: true
+  // API Configuration
+  const API_BASE_URL = "http://127.0.0.1:8001";
+
+  // Test API connection on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        setConnectionStatus('connecting')
+        const response = await axios.get(`${API_BASE_URL}/docs`)
+        console.log("✅ FastAPI connection successful:", response.status)
+        setConnectionStatus('connected')
+      } catch (error) {
+        console.error("❌ FastAPI connection failed:", error.message)
+        console.error("Make sure FastAPI is running on localhost:8001")
+        setConnectionStatus('disconnected')
       }
-    ] : [
+    }
+    
+    if (user) {
+      testConnection()
+    }
+  }, [user])
+
+  const [messages, setMessages] = useState(
+    user ? [] : [
       {
         id: 1,
         text: "Welcome to FloatChat! 🌊",
@@ -36,34 +48,89 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
   )
   const [inputText, setInputText] = useState("")
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!user) {
       // Show login prompt for non-authenticated users
       return;
     }
 
-    if (inputText.trim()) {
-      const newMessage = {
-        id: messages.length + 1,
+    if (inputText.trim() && !isLoading) {
+      const userMessage = {
+        id: Date.now(),
         text: inputText,
         sender: "user",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         hasGraph: false
       }
-      setMessages([...messages, newMessage])
+      
+      setMessages(prev => [...prev, userMessage])
       setInputText("")
+      setIsLoading(true)
 
-      // Simulate bot response with graph
-      setTimeout(() => {
+      try {
+        // Send query to FastAPI backend
+        console.log("Sending query to FastAPI:", inputText)
+        const response = await axios.post(`${API_BASE_URL}/query`, {
+          query: inputText
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 300000 // 30 second timeout
+        })
+        
+        console.log("FastAPI Response:", response.data)
+
+        // Get plot data if available
+        let plotData = null
+        try {
+          const plotResponse = await axios.get(`${API_BASE_URL}/plot`)
+          plotData = plotResponse.data
+          setCurrentPlot(plotData)
+        } catch (plotError) {
+          console.log("No plot data available:", plotError)
+        }
+
         const botResponse = {
-          id: messages.length + 2,
-          text: "I understand you're interested in " + inputText + ". Let me analyze the data and provide you with relevant insights.",
+          id: Date.now() + 1,
+          text: response.data.response || response.data.answer || response.data.message || "I've processed your query and found relevant ocean data.",
           sender: "bot",
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          hasGraph: true
+          hasGraph: !!plotData,
+          plotData: plotData
         }
+        
         setMessages(prev => [...prev, botResponse])
-      }, 1000)
+      } catch (error) {
+        console.error("API Error Details:", error)
+        console.error("Error Response:", error.response?.data)
+        console.error("Error Status:", error.response?.status)
+        console.error("Error Config:", error.config)
+        
+        let errorMessage = "Sorry, I encountered an error processing your query. Please try again or rephrase your question."
+        
+        if (error.code === 'ECONNREFUSED') {
+          errorMessage = "Unable to connect to the AI backend. Please make sure the FastAPI server is running on localhost:8001"
+        } else if (error.response?.status === 404) {
+          errorMessage = "API endpoint not found. Please check if the FastAPI server is running correctly."
+        } else if (error.response?.status === 500) {
+          errorMessage = "Server error occurred. Please try again in a moment."
+        } else if (error.response?.data?.detail) {
+          errorMessage = `API Error: ${error.response.data.detail}`
+        }
+        
+        const errorResponse = {
+          id: Date.now() + 1,
+          text: errorMessage,
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          hasGraph: false,
+          isError: true
+        }
+        setMessages(prev => [...prev, errorResponse])
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -209,6 +276,17 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
               </h3>
               <p style={{ fontSize: isFullscreen ? '14px' : '12px', color: 'var(--blue-20)', margin: '2px 0 0 0' }}>
                 {isFullscreen ? 'AI-powered ocean analytics - Full experience' : 'AI-powered ocean analytics'}
+                {user && (
+                  <span style={{ 
+                    marginLeft: '8px', 
+                    fontSize: '10px',
+                    color: connectionStatus === 'connected' ? '#10b981' : 
+                           connectionStatus === 'disconnected' ? '#ef4444' : '#f59e0b'
+                  }}>
+                    {connectionStatus === 'connected' ? '🟢 Connected' : 
+                     connectionStatus === 'disconnected' ? '🔴 Disconnected' : '🟡 Connecting...'}
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -710,7 +788,7 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
 
                     <p style={{ fontSize: '11px', opacity: 0.7, margin: '8px 0 0 0' }}>{message.timestamp}</p>
 
-                    {/* Static Graph Display */}
+                    {/* Dynamic Graph Display */}
                     {message.hasGraph && (
                       <div style={{ marginTop: '16px' }}>
                         <div style={{
@@ -722,138 +800,158 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
                         }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                             <BarChart3 style={{ width: '16px', height: '16px', color: '#60a5fa' }} />
-                            <span style={{ fontSize: '12px', fontWeight: '600', color: '#e2e8f0' }}>Salinity Profile Analysis</span>
+                            <span style={{ fontSize: '12px', fontWeight: '600', color: '#e2e8f0' }}>
+                              {message.plotData?.title || 'Ocean Data Analysis'}
+                            </span>
                           </div>
 
-                          {/* Mini Chart */}
+                          {/* Dynamic Chart */}
                           <div style={{ height: '120px', position: 'relative', marginBottom: '12px' }}>
-                            {/* Y-axis */}
-                            <div style={{
-                              position: 'absolute',
-                              left: 0,
-                              top: 0,
-                              bottom: 0,
-                              width: '30px',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'space-between',
-                              fontSize: '10px',
-                              color: '#94a3b8'
-                            }}>
-                              <span>0</span>
-                              <span>50</span>
-                              <span>100</span>
-                              <span>150</span>
-                              <span>200</span>
-                            </div>
-
-                            {/* Chart Area */}
-                            <div style={{
-                              marginLeft: '35px',
-                              height: '100%',
-                              position: 'relative',
-                              background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%)',
-                              borderRadius: '8px'
-                            }}>
-                              {/* Data Line */}
-                              <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
-                                <path
-                                  d="M 0,80 Q 20,60 40,70 T 80,50 T 120,40 T 160,45 T 200,35"
-                                  stroke="#60a5fa"
-                                  strokeWidth="2"
-                                  fill="none"
-                                  style={{ filter: 'drop-shadow(0 0 4px rgba(96, 165, 250, 0.6))' }}
-                                />
-                                <path
-                                  d="M 0,90 Q 20,75 40,80 T 80,65 T 120,55 T 160,60 T 200,50"
-                                  stroke="#06b6d4"
-                                  strokeWidth="2"
-                                  fill="none"
-                                  style={{ filter: 'drop-shadow(0 0 4px rgba(6, 182, 212, 0.6))' }}
-                                />
-                              </svg>
-
-                              {/* Data Points */}
-                              {[0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200].map((x, i) => (
-                                <div
-                                  key={i}
-                                  style={{
-                                    position: 'absolute',
-                                    left: `${x}px`,
-                                    top: `${60 + Math.sin(i * 0.5) * 20}px`,
-                                    width: '4px',
-                                    height: '4px',
-                                    background: '#60a5fa',
-                                    borderRadius: '50%',
-                                    boxShadow: '0 0 6px rgba(96, 165, 250, 0.8)'
-                                  }}
-                                />
-                              ))}
-                            </div>
+                            {message.plotData ? (
+                              // Render actual plot data from API
+                              <div style={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%)',
+                                borderRadius: '8px',
+                                border: '1px solid rgba(59, 130, 246, 0.2)'
+                              }}>
+                                {message.plotData.image ? (
+                                  <img 
+                                    src={`data:image/png;base64,${message.plotData.image}`} 
+                                    alt="Ocean Data Plot"
+                                    style={{ 
+                                      maxWidth: '100%', 
+                                      maxHeight: '100%', 
+                                      objectFit: 'contain',
+                                      borderRadius: '4px'
+                                    }}
+                                  />
+                                ) : (
+                                  <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+                                    <BarChart3 style={{ width: '32px', height: '32px', marginBottom: '8px' }} />
+                                    <div style={{ fontSize: '12px' }}>Chart Generated</div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              // Fallback static chart
+                              <div style={{
+                                marginLeft: '35px',
+                                height: '100%',
+                                position: 'relative',
+                                background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%)',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#94a3b8',
+                                fontSize: '12px'
+                              }}>
+                                <div style={{ textAlign: 'center' }}>
+                                  <BarChart3 style={{ width: '24px', height: '24px', marginBottom: '4px' }} />
+                                  <div>Processing data...</div>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
-                          {/* X-axis Label */}
+                          {/* Chart Info */}
                           <div style={{
                             textAlign: 'center',
                             fontSize: '10px',
                             color: '#94a3b8',
                             marginTop: '8px'
                           }}>
-                            Salinity (g/kg)
+                            {message.plotData?.xLabel || 'Ocean Parameters'}
                           </div>
 
                           {/* Legend */}
-                          <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <div style={{ width: '8px', height: '2px', background: '#60a5fa', borderRadius: '1px' }}></div>
-                              <span style={{ fontSize: '10px', color: '#cbd5e1' }}>Profile 1</span>
+                          {message.plotData?.legend && (
+                            <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
+                              {message.plotData.legend.map((item, index) => (
+                                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <div style={{ 
+                                    width: '8px', 
+                                    height: '2px', 
+                                    background: item.color || '#60a5fa', 
+                                    borderRadius: '1px' 
+                                  }}></div>
+                                  <span style={{ fontSize: '10px', color: '#cbd5e1' }}>{item.label}</span>
+                                </div>
+                              ))}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <div style={{ width: '8px', height: '2px', background: '#06b6d4', borderRadius: '1px' }}></div>
-                              <span style={{ fontSize: '10px', color: '#cbd5e1' }}>Profile 2</span>
-                            </div>
-                          </div>
+                          )}
                         </div>
 
                         {/* Action Buttons */}
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <button style={{
-                            flex: 1,
-                            padding: '8px 12px',
-                            background: 'rgba(59, 130, 246, 0.2)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            borderRadius: '8px',
-                            color: '#60a5fa',
-                            fontSize: '11px',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '4px',
-                            transition: 'all 0.3s ease'
-                          }}>
+                          <button 
+                            onClick={() => {
+                              setInputText(message.text);
+                              // Auto-focus input
+                              setTimeout(() => {
+                                const input = document.querySelector('input[type="text"]');
+                                if (input) input.focus();
+                              }, 100);
+                            }}
+                            style={{
+                              flex: 1,
+                              padding: '8px 12px',
+                              background: 'rgba(59, 130, 246, 0.2)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '8px',
+                              color: '#60a5fa',
+                              fontSize: '11px',
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              transition: 'all 0.3s ease'
+                            }}
+                          >
                             <RefreshCw style={{ width: '12px', height: '12px' }} />
                             Refine Query
                           </button>
-                          <button style={{
-                            flex: 1,
-                            padding: '8px 12px',
-                            background: 'rgba(6, 182, 212, 0.2)',
-                            border: '1px solid rgba(6, 182, 212, 0.3)',
-                            borderRadius: '8px',
-                            color: '#06b6d4',
-                            fontSize: '11px',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '4px',
-                            transition: 'all 0.3s ease'
-                          }}>
+                          <button 
+                            onClick={async () => {
+                              try {
+                                const plotResponse = await axios.get(`${API_BASE_URL}/plot`);
+                                setCurrentPlot(plotResponse.data);
+                                // Update the current message with new plot data
+                                setMessages(prev => prev.map(msg => 
+                                  msg.id === message.id 
+                                    ? { ...msg, plotData: plotResponse.data, hasGraph: true }
+                                    : msg
+                                ));
+                              } catch (error) {
+                                console.error("Error fetching plot:", error);
+                              }
+                            }}
+                            style={{
+                              flex: 1,
+                              padding: '8px 12px',
+                              background: 'rgba(6, 182, 212, 0.2)',
+                              border: '1px solid rgba(6, 182, 212, 0.3)',
+                              borderRadius: '8px',
+                              color: '#06b6d4',
+                              fontSize: '11px',
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              transition: 'all 0.3s ease'
+                            }}
+                          >
                             <BarChart3 style={{ width: '12px', height: '12px' }} />
-                            Visualize
+                            Refresh Plot
                           </button>
                           <button
                             onClick={handleDownload}
@@ -884,6 +982,30 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
               </div>
             </div>
           ))}
+          
+          {/* Loading Message */}
+          {isLoading && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <div
+                style={{
+                  maxWidth: '85%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: 'rgba(0, 46, 77, 0.8)',
+                  color: '#e2e8f0',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Bot style={{ width: '16px', height: '16px', color: '#60a5fa' }} />
+                <Loader2 style={{ width: '16px', height: '16px', color: '#60a5fa', animation: 'spin 1s linear infinite' }} />
+                <span>Analyzing ocean data...</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -901,21 +1023,25 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about ocean data..."
+              placeholder={isLoading ? "Processing your query..." : "Ask about ocean data..."}
+              disabled={isLoading}
               style={{
                 flex: 1,
                 padding: '12px 16px',
-                background: 'rgba(0, 46, 77, 0.8)',
+                background: isLoading ? 'rgba(0, 46, 77, 0.4)' : 'rgba(0, 46, 77, 0.8)',
                 border: '2px solid rgba(59, 130, 246, 0.2)',
                 borderRadius: '12px',
-                color: '#e2e8f0',
+                color: isLoading ? '#6b7280' : '#e2e8f0',
                 fontSize: '14px',
                 outline: 'none',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                opacity: isLoading ? 0.6 : 1
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = '#3b82f6';
-                e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)';
+                if (!isLoading) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)';
+                }
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(59, 130, 246, 0.2)';
@@ -924,29 +1050,43 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
             />
             <button
               onClick={handleSendMessage}
+              disabled={isLoading || !inputText.trim()}
               style={{
                 padding: '12px',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+                background: isLoading || !inputText.trim() 
+                  ? 'rgba(107, 114, 128, 0.4)' 
+                  : 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
                 border: 'none',
                 borderRadius: '12px',
                 color: 'white',
-                cursor: 'pointer',
+                cursor: isLoading || !inputText.trim() ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4)',
-                transition: 'all 0.3s ease'
+                boxShadow: isLoading || !inputText.trim() 
+                  ? 'none' 
+                  : '0 8px 32px rgba(59, 130, 246, 0.4)',
+                transition: 'all 0.3s ease',
+                opacity: isLoading || !inputText.trim() ? 0.6 : 1
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.6)';
+                if (!isLoading && inputText.trim()) {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.6)';
+                }
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 8px 32px rgba(59, 130, 246, 0.4)';
+                e.target.style.boxShadow = isLoading || !inputText.trim() 
+                  ? 'none' 
+                  : '0 8px 32px rgba(59, 130, 246, 0.4)';
               }}
             >
-              <Send style={{ width: '16px', height: '16px' }} />
+              {isLoading ? (
+                <Loader2 style={{ width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />
+              ) : (
+                <Send style={{ width: '16px', height: '16px' }} />
+              )}
             </button>
           </div>
         ) : (
@@ -1032,6 +1172,10 @@ export function ChatAssistant({ isOpen, onToggle, isFullscreen = false, width = 
             opacity: 0.7; 
             transform: scale(1.2) rotate(180deg); 
           }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
